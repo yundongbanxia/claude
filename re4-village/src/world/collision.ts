@@ -40,6 +40,8 @@ export interface Floor {
   /** thickness for raycasts (0 = not solid) */
   slab: number;
   id: number;
+  /** part of the ground nav layer (bridges, house ground floors) */
+  ground?: boolean;
 }
 
 export type RayMask = 'bullet' | 'cam' | 'sight' | 'move';
@@ -129,8 +131,8 @@ export class CollisionWorld {
     return c;
   }
 
-  addFloor(x: number, z: number, hx: number, hz: number, rot: number, y: number, ramp?: Floor['ramp'], slab = 0.2): Floor {
-    const f: Floor = { x, z, hx, hz, rot, cos: Math.cos(rot), sin: Math.sin(rot), y, ramp, slab, id: this.floors.length };
+  addFloor(x: number, z: number, hx: number, hz: number, rot: number, y: number, ramp?: Floor['ramp'], slab = 0.2, ground = false): Floor {
+    const f: Floor = { x, z, hx, hz, rot, cos: Math.cos(rot), sin: Math.sin(rot), y, ramp, slab, id: this.floors.length, ground };
     this.floors.push(f);
     return f;
   }
@@ -288,13 +290,25 @@ export class CollisionWorld {
     return h;
   }
 
-  /** Which floor (index) supports the point, or -1 for terrain. */
-  floorIdAt(x: number, z: number, yFeet: number): number {
+  /** Ground-layer height: terrain or ground floors (bridges). */
+  baseGround(x: number, z: number): number {
     let h = this.terrain ? this.terrain.heightAt(x, z) : 0;
+    for (const f of this.floors) {
+      if (!f.ground) continue;
+      const fh = this.floorHeightAt(f, x, z);
+      if (fh !== null && fh > h) h = fh;
+    }
+    return h;
+  }
+
+  /** Which (non-ground) floor supports the point, or -1 for the ground layer. */
+  floorIdAt(x: number, z: number, yFeet: number): number {
+    let h = this.baseGround(x, z);
     let id = -1;
     for (const f of this.floors) {
+      if (f.ground) continue;
       const fh = this.floorHeightAt(f, x, z);
-      if (fh !== null && fh <= yFeet + 0.55 && fh > h + 0.05) {
+      if (fh !== null && fh <= yFeet + 0.55 && fh > h + 0.3) {
         h = fh;
         id = f.id;
       }

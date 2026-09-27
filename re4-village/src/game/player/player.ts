@@ -100,7 +100,8 @@ export class Player {
       hairStyle: 'leon',
       extraParts: [
         // fur collar
-        { bone: B.chest, shape: 'box', size: [0.44, 0.09, 0.26], pos: [0, 0.27, 0.02], color: 0x8a6a48 },
+        { bone: B.chest, shape: 'box', size: [0.3, 0.07, 0.22], pos: [0, 0.29, 0.03], color: 0x8a6a48 },
+        { bone: B.neck, shape: 'cyl', size: [0.09, 0.11, 0.08], pos: [0, 0.0, 0.01], color: 0x8a6a48 },
         // shirt showing at front
         { bone: B.chest, shape: 'box', size: [0.14, 0.24, 0.02], pos: [0, 0.12, -0.11], color: 0x2a2c30 },
         // holster straps
@@ -143,8 +144,7 @@ export class Player {
   }
 
   place(x: number, z: number, yaw: number) {
-    const y = this.g.level ? this.g.level.cw.groundHeight(x, z, 50) : 0;
-    this.pos.set(x, this.g.level ? this.g.level.cw.groundHeight(x, z, y + 0.5) : 0, z);
+    this.pos.set(x, this.g.level ? this.g.level.cw.baseGround(x, z) : 0, z);
     this.yaw = yaw;
     this.g.camera.yaw = yaw;
     this.g.camera.pitch = -0.08;

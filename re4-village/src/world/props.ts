@@ -211,7 +211,7 @@ export function buildHouse(L: Level, spec: HouseSpec): HouseResult {
   const gf = boxGeo(w - 0.1, 0.3, d - 0.1, 2);
   place(gf, 0, -0.14, 0);
   addG(worldMat('wood', 0x8a7a60), gf);
-  L.cw.addFloor(x, z, w / 2 - 0.05, d / 2 - 0.05, rot, base + 0.01, undefined, 0);
+  L.cw.addFloor(x, z, w / 2 - 0.05, d / 2 - 0.05, rot, base + 0.01, undefined, 0, true);
 
   // loft / upper floor
   if (floors === 2) {
@@ -703,10 +703,13 @@ function ensureVegGeos() {
     dead.push(b);
   }
   deadGeo = merge(dead);
-  const bb = new THREE.IcosahedronGeometry(0.8, 0);
-  bb.scale(1, 0.7, 1);
-  bb.translate(0, 0.45, 0);
-  bushGeo = tint(bb.toNonIndexed(), 0x4a5234);
+  const blobs: THREE.BufferGeometry[] = [];
+  for (const [bx, by, bz, r] of [[0, 0.35, 0, 0.5], [0.35, 0.25, 0.1, 0.35], [-0.3, 0.28, -0.1, 0.38], [0.05, 0.22, 0.35, 0.3]]) {
+    const b = new THREE.IcosahedronGeometry(r, 0);
+    b.translate(bx, by, bz);
+    blobs.push(tint(b.toNonIndexed(), new THREE.Color(0x3e4a2c).lerp(new THREE.Color(0x56603a), Math.random())));
+  }
+  bushGeo = merge(blobs);
   const rk = new THREE.DodecahedronGeometry(1, 0);
   rk.scale(1, 0.7, 0.9);
   rockGeo = rk;

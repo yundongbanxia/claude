@@ -67,9 +67,16 @@ if (startArea) {
 // main loop
 let last = performance.now();
 let manual = false;
+let pendingRender = false;
 function frame(now: number) {
   requestAnimationFrame(frame);
-  if (manual) return;
+  if (manual) {
+    if (pendingRender) {
+      pendingRender = false;
+      game.render();
+    }
+    return;
+  }
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
   game.update(dt);
@@ -95,7 +102,7 @@ window.__game = {
       game.update(dt);
       game.input.endFrame();
     }
-    game.render();
+    pendingRender = true;
   },
   resume() {
     manual = false;

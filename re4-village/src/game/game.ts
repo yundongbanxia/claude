@@ -165,7 +165,8 @@ export class Game {
     this.inv.add('ammo_hg', 20);
     this.inv.add('herb_g', 1);
     this.inv.pesetas = 0;
-    this.flags = { difficulty: diff };
+    const keep = Object.fromEntries(Object.entries(this.flags).filter(([k]) => k.startsWith('test')));
+    this.flags = { difficulty: diff, ...keep };
     this.stats = { kills: 0, shots: 0, hits: 0, headshots: 0, deaths: 0, pesetas: 0, time: 0, damage: 0, parries: 0 };
     this.player.hp = this.player.maxHp = 1000;
     this.player.knife = KNIFE_MAX;
@@ -505,7 +506,7 @@ export class Game {
       const m = e.stunnedForMelee;
       if (!m) continue;
       const d = dist2(p.pos.x, p.pos.z, e.pos.x, e.pos.z);
-      if (d > 2.4 || Math.abs(e.pos.y - p.pos.y) > 1) continue;
+      if (d > 3.2 || Math.abs(e.pos.y - p.pos.y) > 1) continue;
       let kind: 'kick' | 'suplex' = 'kick';
       if (m === 'suplex') {
         // suplex when standing behind a kneeling enemy

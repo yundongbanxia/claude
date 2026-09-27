@@ -13,7 +13,8 @@ varying vec4 vColor;
 void main() {
   vColor = pcolor;
   vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-  gl_PointSize = size * (600.0 / max(0.1, -mvPosition.z));
+  float depth = -mvPosition.z;
+  gl_PointSize = depth < 0.25 ? 0.0 : min(size * (600.0 / depth), 180.0);
   gl_Position = projectionMatrix * mvPosition;
   #include <fog_vertex>
 }

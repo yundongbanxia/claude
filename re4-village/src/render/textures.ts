@@ -112,20 +112,26 @@ const painters: Record<string, Painter> = {
     }
   },
   plaster(ctx, s, r) {
-    noiseFill(ctx, s, r, [168, 152, 124], 22, 2.2);
+    noiseFill(ctx, s, r, [158, 146, 124], 18, 2.2);
     for (let i = 0; i < 30; i++) {
       ctx.fillStyle = `rgba(90,70,50,${0.05 + r.next() * 0.12})`;
       ctx.beginPath();
       ctx.ellipse(r.next() * s, r.next() * s, 10 + r.next() * 40, 6 + r.next() * 20, r.next() * 3, 0, Math.PI * 2);
       ctx.fill();
     }
-    // exposed stone patches
-    for (let i = 0; i < 4; i++) {
-      const x = r.next() * s, y = r.next() * s;
-      for (let k = 0; k < 6; k++) {
-        ctx.fillStyle = 'rgba(100,92,80,0.7)';
-        ctx.fillRect(x + (r.next() - 0.5) * 30, y + (r.next() - 0.5) * 20, 10 + r.next() * 8, 6 + r.next() * 4);
+    // subtle cracks
+    for (let i = 0; i < 6; i++) {
+      ctx.strokeStyle = `rgba(80,66,50,${0.15 + r.next() * 0.2})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      let x = r.next() * s, y = r.next() * s;
+      ctx.moveTo(x, y);
+      for (let k = 0; k < 5; k++) {
+        x += (r.next() - 0.5) * 30;
+        y += r.next() * 20;
+        ctx.lineTo(x, y);
       }
+      ctx.stroke();
     }
   },
   roof(ctx, s, r) {

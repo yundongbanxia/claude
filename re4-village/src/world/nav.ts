@@ -121,7 +121,7 @@ export class NavGrid {
     for (let j = 0; j < h; j++)
       for (let i = 0; i < w; i++) {
         const x = minX + (i + 0.5) * NAV_CELL, z = minZ + (j + 0.5) * NAV_CELL;
-        heights[j * w + i] = terr ? terr.heightAt(x, z) : 0;
+        heights[j * w + i] = terr ? this.cw.baseGround(x, z) : 0;
       }
     for (let j = 0; j < h; j++) {
       for (let i = 0; i < w; i++) {

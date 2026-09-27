@@ -186,8 +186,7 @@ export class Enemy {
     this.eyes.visible = false;
     if (!this.isSalvador) this.rig.bones[B.head].add(this.eyes);
     this.attachWeapon();
-    this.pos.set(sp.x, sp.y ?? g.level!.cw.groundHeight(sp.x, sp.z, 50), sp.z);
-    if (sp.y === undefined) this.pos.y = g.level!.cw.groundHeight(sp.x, sp.z, this.pos.y + 1);
+    this.pos.set(sp.x, sp.y ?? g.level!.cw.baseGround(sp.x, sp.z), sp.z);
     this.yaw = sp.yaw ?? rng.range(-Math.PI, Math.PI);
     this.lastPos.copy(this.pos);
     this.rig.root.position.copy(this.pos);
@@ -453,6 +452,7 @@ export class Enemy {
     this.rig.root.rotation.y = this.yaw;
     if (this.alive && this.state !== 'traverse' && this.state !== 'grab' && this.aware) this.lookAt(g.player.headPos, 0.7);
     this.anim.update(dt);
+    this.rig.root.updateMatrixWorld(true);
   }
 
   private lookAt(target: THREE.Vector3, w: number) {
