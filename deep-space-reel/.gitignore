@@ -1,0 +1,9 @@
+node_modules
+dist
+.DS_Store
+.env
+
+# Ignore render output except the delivered reel.
+out/*
+!out/deep-space-reel.mp4
+build
