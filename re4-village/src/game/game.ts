@@ -91,6 +91,7 @@ export class Game {
   stats = { kills: 0, shots: 0, hits: 0, headshots: 0, deaths: 0, pesetas: 0, time: 0, damage: 0, parries: 0 };
   sun: THREE.DirectionalLight;
   hemi: THREE.HemisphereLight;
+  fill: THREE.PointLight;
   private sky: THREE.Mesh;
   private skyMat: THREE.ShaderMaterial;
   cutscene: { steps: CutStep[]; i: number; t: number; onEnd?: () => void; skippable: boolean } | null = null;
@@ -146,6 +147,9 @@ export class Game {
     this.sun.shadow.bias = -0.0006;
     this.sun.shadow.normalBias = 0.04;
     this.scene.add(this.sun, this.sun.target);
+    // soft fill light that follows the camera so characters read against the fog
+    this.fill = new THREE.PointLight(0xffe8d0, 1.6, 9, 1.2);
+    this.scene.add(this.fill);
     // sky dome
     this.skyMat = new THREE.ShaderMaterial({
       uniforms: { top: { value: new THREE.Color(0x6a6a70) }, bottom: { value: new THREE.Color(0xa09880) }, sunDir: { value: new THREE.Vector3(0, 0.2, -1) }, sunCol: { value: new THREE.Color(0xffc080) } },
@@ -426,6 +430,7 @@ export class Game {
     const fwd = new THREE.Vector3();
     cam.getWorldDirection(fwd);
     this.audio.setListener(cam.position, fwd, cam.up);
+    this.fill.position.copy(cam.position).addScaledVector(fwd, 0.6).add(new THREE.Vector3(0, 0.4, 0));
     this.audio.music?.update(dt0);
     // sun follows player for shadow coverage
     if (this.area) {

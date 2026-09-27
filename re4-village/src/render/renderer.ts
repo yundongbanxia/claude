@@ -89,6 +89,8 @@ export class Renderer {
   private postMat: THREE.ShaderMaterial;
   post: PostParams;
   quality: Quality = 'medium';
+  /** materials must recompile after toggling shadows */
+  shadowsChanged = false;
   renderScale = 1;
   private width = 1;
   private height = 1;
@@ -151,6 +153,11 @@ export class Renderer {
     this.gl.setPixelRatio(dpr);
     this.rt.samples = q === 'high' ? 4 : q === 'medium' ? 2 : 0;
     this.renderScale = q === 'low' ? 0.75 : 1;
+    const shadows = q !== 'low';
+    if (this.gl.shadowMap.enabled !== shadows) {
+      this.gl.shadowMap.enabled = shadows;
+      this.shadowsChanged = true;
+    }
     this.resize(this.width, this.height);
   }
 
@@ -183,6 +190,14 @@ export class Renderer {
     u.uExposure.value = p.exposure;
     u.uBlur.value = p.blur;
     (u.uTint.value as THREE.Color).copy(p.tint);
+    if (this.shadowsChanged) {
+      this.shadowsChanged = false;
+      scene.traverse((o) => {
+        const m = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
+        if (Array.isArray(m)) m.forEach((x) => (x.needsUpdate = true));
+        else if (m) m.needsUpdate = true;
+      });
+    }
     this.gl.info.reset();
     this.gl.setRenderTarget(this.rt);
     this.gl.render(scene, camera);

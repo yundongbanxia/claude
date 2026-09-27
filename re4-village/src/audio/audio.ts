@@ -569,7 +569,8 @@ export class AudioSys {
   /** Spanish shout via speech synthesis (throttled), plus a formant bark for spatial cue. */
   shout(pos: THREE.Vector3, text: string, pitchMul = 1, female = false) {
     this.grunt(pos, 'alert', female ? 1.8 : pitchMul);
-    if (!this.tts || typeof speechSynthesis === 'undefined' || !this.ctx) return;
+    // only speak when a real Spanish voice exists (otherwise the accent sounds silly)
+    if (!this.tts || typeof speechSynthesis === 'undefined' || !this.ctx || !this.ttsVoice) return;
     const now = performance.now();
     if (now - this.lastSpeak < 1600) return;
     const d = pos.distanceTo(this.listenerPos);
@@ -590,11 +591,12 @@ export class AudioSys {
 
   say(text: string, lang: 'en' | 'es', pitch = 0.6, rate = 0.95) {
     if (!this.tts || typeof speechSynthesis === 'undefined') return;
+    const v = lang === 'en' ? this.ttsEnVoice : this.ttsVoice;
+    if (!v) return;
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      const v = lang === 'en' ? this.ttsEnVoice : this.ttsVoice;
-      if (v) u.voice = v;
+      u.voice = v;
       u.lang = lang === 'en' ? 'en-GB' : 'es-ES';
       u.pitch = pitch;
       u.rate = rate;

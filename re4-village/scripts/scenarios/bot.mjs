@@ -45,6 +45,7 @@ export default async function (page, base, out) {
     };
   });
   const dur = parseInt(process.env.DUR ?? '240');
+  const shotsAt = (process.env.SHOTAT ?? '').split(',').filter(Boolean).map(Number);
   for (let s = 0; s < dur; s += 10) {
     const r = await page.evaluate((s) => {
       const G = window.__game; const g = G.g; const B = window.__bot;
@@ -53,6 +54,7 @@ export default async function (page, base, out) {
       return { t: s + 10, hp: Math.round(g.player.hp), minHp: Math.round(B.minHp), deaths: B.deaths, kills: g.stats.kills, hg: inv.count('ammo_hg') + (g.inv.weapons().find(w=>w.weapon.id==='sg09')?.weapon.mag ?? 0), sg: inv.count('ammo_sg'), herbs: inv.items.filter(i => i.id.startsWith('herb')).length, alive: g.enemies.filter(e => e.alive).length, done: !!g.flags.siege_done, pst: g.player.state, sal: g.enemies.some(e=>e.isSalvador&&e.alive) };
     }, s);
     console.log(JSON.stringify(r));
+    if (shotsAt.includes(s + 10)) await page.screenshot({ path: out + `/bot_${s + 10}.png` });
     if (r.done) break;
   }
   await page.screenshot({ path: out + '/bot.png' });

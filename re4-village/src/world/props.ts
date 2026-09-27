@@ -781,6 +781,8 @@ export function forestFill(L: Level, minX: number, minZ: number, maxX: number, m
       const px = x + rng.range(-spacing * 0.45, spacing * 0.45);
       const pz = z + rng.range(-spacing * 0.45, spacing * 0.45);
       if (avoid(px, pz)) continue;
+      if (L.cw.floors.some((f) => L.cw.floorHeightAt(f, px, pz) !== null)) continue;
+      if (L.cw.blocked(px, pz, 1.0, L.h(px, pz), 3)) continue;
       if (rng.chance(deadChance)) deadTree(L, px, pz, rng.range(0.8, 1.2));
       else pine(L, px, pz, rng.range(0.8, 1.35));
     }

@@ -372,9 +372,14 @@ export function signPost(L: Level, x: number, z: number, yaw: number) {
 
 /** Scatter grass tufts, bushes and rocks in a region, avoiding a predicate. */
 export function scatter(L: Level, minX: number, minZ: number, maxX: number, maxZ: number, n: number, avoid: (x: number, z: number) => boolean, kinds: ('grass' | 'bush' | 'rock' | 'dead' | 'pine' | 'hay')[] = ['grass']) {
+  const inside = (x: number, z: number) => L.cw.floors.some((f) => L.cw.floorHeightAt(f, x, z) !== null);
+  let blockedHit = false;
   for (let i = 0; i < n; i++) {
     const x = rng.range(minX, maxX), z = rng.range(minZ, maxZ);
-    if (avoid(x, z)) continue;
+    if (avoid(x, z) || inside(x, z)) continue;
+    // keep clutter out of walls/props
+    blockedHit = L.cw.blocked(x, z, 0.3, L.h(x, z), 1.5);
+    if (blockedHit) continue;
     const k = rng.pick(kinds);
     if (k === 'grass') grass(L, x, z);
     else if (k === 'bush') bush(L, x, z, rng.range(0.6, 1.3));

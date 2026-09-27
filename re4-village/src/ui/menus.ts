@@ -259,6 +259,14 @@ export class Menus {
     slider('音乐', 0, 1, 0.05, () => st.music, (v) => (st.music = v));
     slider('音效', 0, 1, 0.05, () => st.sfx, (v) => (st.sfx = v));
     toggle('显示帧率', () => g.hud.showFps, (v) => (g.hud.showFps = v));
+    toggle('全屏', () => !!document.fullscreenElement, (v) => {
+      try {
+        if (v) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+      } catch {
+        /* ignore */
+      }
+    });
     const m = el('div', { class: 'menu' }, p);
     m.style.marginTop = '14px';
     this.button(m, '返回', back);

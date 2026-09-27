@@ -118,8 +118,10 @@ export function humanParts(ap: Appearance): Part[] {
   // torso
   add(B.hips, 'box', [0.34 * k, 0.22, 0.21 * k], [0, -0.02, 0], ap.pants);
   add(B.spine, 'box', [0.31 * k, 0.22, 0.19 * k], [0, 0.1, 0], ap.shirt);
-  add(B.chest, 'box', [0.37 * k, 0.27, 0.22 * k], [0, 0.12, 0], ap.shirt);
-  add(B.chest, 'box', [0.44 * k, 0.09, 0.2 * k], [0, 0.23, 0], ap.shirt);
+  add(B.chest, 'box', [0.36 * k, 0.26, 0.22 * k], [0, 0.11, 0], ap.shirt);
+  add(B.chest, 'wedge', [0.34 * k, 0.07, 0.18 * k], [0, 0.24, 0], ap.shirt); // trapezius slope
+  add(B.chest, 'ball', [0.085 * k, 0.07, 0.1 * k], [-0.19 * k, 0.21, 0], ap.shirt, undefined, 0); // shoulders
+  add(B.chest, 'ball', [0.085 * k, 0.07, 0.1 * k], [0.19 * k, 0.21, 0], ap.shirt, undefined, 0);
   if (ap.female) add(B.chest, 'box', [0.3 * k, 0.1, 0.06], [0, 0.1, -0.12 * k], ap.shirt);
   // neck & head
   add(B.neck, 'cyl', [0.052, 0.06, 0.12], [0, 0.04, 0], ap.skin);

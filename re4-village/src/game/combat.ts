@@ -154,6 +154,9 @@ export class Combat {
       }
       this.hits++;
       g.audio.play(zone === 'head' ? 'headshot' : 'flesh', info.point, 0.8);
+      // spatter on a wall/ground behind the target
+      const behind = g.level!.cw.raycast(info.point, info.dir, 3.5, 'bullet');
+      if (behind) g.fx.bloodSplat(info.point.clone().addScaledVector(info.dir, behind.t), behind.normal, zone === 'head' ? 0.7 : 0.45);
       e.takeDamage({
         dmg: info.dmg,
         zone,

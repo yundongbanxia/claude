@@ -34,3 +34,20 @@ test('sandbox: headshot damages an enemy', async ({ page }) => {
   expect(hp).toBeLessThan(1);
   expect(errors).toEqual([]);
 });
+
+for (const area of ['forest', 'village', 'farm']) {
+  test(`area "${area}" loads and simulates without errors`, async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto(file + `?area=${area}&seed=3`);
+    await page.waitForFunction(() => (window as any).__game?.g.state === 'play', null, { timeout: 60_000 });
+    const st = await page.evaluate(() => {
+      const G = (window as any).__game;
+      G.step(5, 1 / 30);
+      return G.state();
+    });
+    expect(st.area).toBe(area);
+    expect(st.enemies.length).toBeGreaterThan(0);
+    expect(errors).toEqual([]);
+  });
+}
