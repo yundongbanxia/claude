@@ -278,6 +278,7 @@ export class Player {
       if (this.slashT > 0.42) {
         this.slashT = -1;
         if (this.guard) this.anim.playUpper(L.knifeGuard);
+        else this.anim.playUpper(null);
       }
     }
     if (this.parryWindowT >= 0) this.parryWindowT += dt;
@@ -350,7 +351,8 @@ export class Player {
     if (inp.pressed('knife')) this.onKnifePress();
     if (this.guard && !inp.isDown('knife')) {
       this.guard = false;
-      this.anim.playUpper(null);
+      // a quick tap still finishes the slash
+      if (this.slashT < 0) this.anim.playUpper(null);
     }
 
     // movement
@@ -647,7 +649,7 @@ export class Player {
       const right = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw));
       let base: THREE.Vector3;
       if (wd.kind === 'pistol') base = chest.clone().addScaledVector(fwd, 0.52).addScaledVector(right, 0.1).add(new THREE.Vector3(0, 0.3, 0));
-      else base = chest.clone().addScaledVector(fwd, 0.28).addScaledVector(right, 0.16).add(new THREE.Vector3(0, 0.3, 0));
+      else base = chest.clone().addScaledVector(fwd, 0.28).addScaledVector(right, 0.16).add(new THREE.Vector3(0, 0.25, 0));
       base.y += (this.g.camera.pitch + this.g.camera.recoil) * 0.25;
       m.obj.position.lerp(base, 0.7);
       m.obj.lookAt(this.aimPoint);
