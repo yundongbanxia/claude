@@ -17,7 +17,7 @@ export default async function (page, base, out) {
   await ev(() => { const G = window.__game; const e = G.g.enemies.find(e => e.tag === 'lodge1'); e.takeDamage({ dmg: 9999, zone: 'torso', dir: new G.THREE.Vector3(1,0,0), kind: 'bullet' }); G.step(3.5); });
   log(await ev(() => ({ siege: window.__game.g.flags.lodge_siege, n: window.__game.g.enemies.filter(e => e.alive).length, obj: document.querySelector('#objective').textContent })));
   // kill everything, go to village
-  await ev(() => { const G = window.__game; G.g.enemies.forEach(e => e.alive && e.takeDamage({ dmg: 9999, zone: 'torso', dir: new G.THREE.Vector3(1,0,0), kind: 'bullet' })); G.step(1); G.g.player.place(0, -182, Math.PI); G.step(0.2); });
+  await ev(() => { const G = window.__game; G.g.enemies.forEach(e => e.alive && e.takeDamage({ dmg: 9999, zone: 'torso', dir: new G.THREE.Vector3(1,0,0), kind: 'bullet' })); G.step(1); G.g.player.place(0, -182, Math.PI); G.step(0.8); }); await page.waitForTimeout(500); await ev(() => window.__game.step(0.1));
   log(await ev(() => ({ area: window.__game.g.area.id })));
   await skipCut();
   // trigger siege
@@ -35,7 +35,7 @@ export default async function (page, base, out) {
   log(await ev(() => ({ done: window.__game.g.flags.siege_done, obj: document.querySelector('#objective').textContent })));
   // crank, gate
   await ev(() => { const G = window.__game; G.g.player.place(35.6, -1.4, 0); });
-  await ev(() => { const G = window.__game; const g = G.g; g.inv.add('crank'); g.player.place(46.5, -27.5, 0); G.step(0.2); G.tap('interact'); G.step(3); g.player.place(48.5, -24, -Math.PI/2); G.step(0.3); });
+  await ev(() => { const G = window.__game; const g = G.g; g.inv.add('crank'); g.player.place(46.5, -27.5, 0); G.step(0.2); G.tap('interact'); G.step(3); g.player.place(48.5, -24, -Math.PI/2); G.step(0.8); }); await page.waitForTimeout(500); await ev(() => window.__game.step(0.1));
   log(await ev(() => ({ area: window.__game.g.area.id, gate: window.__game.g.flags.village_gate_open })));
   await skipCut();
   // farm finale

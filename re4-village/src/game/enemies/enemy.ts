@@ -272,7 +272,16 @@ export class Enemy {
     return null;
   }
 
+  /** set when the church bell calls them away */
+  leaving = false;
+
   setState(s: EState) {
+    if (this.leaving && s === 'chase') {
+      this.state = 'leave';
+      this.stateT = 0;
+      this.anim.play(this.isSalvador ? S.walk : G.walk, { fade: 0.3, speed: 0.85 });
+      return;
+    }
     if (this.state === 'grab' && s !== 'grab' && this.g.player.grabbedBy === this) this.g.player.releaseGrab(false);
     this.state = s;
     this.stateT = 0;
@@ -1465,6 +1474,10 @@ export class Enemy {
     if (!this.alive) return;
     if (this.state === 'grab') this.g.player.releaseGrab(true);
     this.releaseToken();
+    this.leaving = true;
+    if (this.traverse?.ladder) this.traverse.ladder.users = Math.max(0, this.traverse.ladder.users - 1);
+    this.traverse = null;
+    this.climbing = null;
     this.wander.copy(target);
     this.state = 'leave';
     this.stateT = rng.range(-2.5, -0.5);

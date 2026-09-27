@@ -221,7 +221,7 @@ export function buildFarm(g: Game): AreaInstance {
         f.farm_done = true;
         gg.hud.menus.results();
       }
-      if (p.pos.z > 42 && Math.abs(p.pos.x) < 4) gg.loadArea('village', 'farmgate');
+      if (p.pos.z > 42 && Math.abs(p.pos.x) < 4) gg.requestArea('village', 'farmgate');
     },
   };
 

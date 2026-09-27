@@ -73,6 +73,8 @@ export class Player {
   private climb: { ladder: Ladder; up: boolean; t: number; dur: number; from: THREE.Vector3; to: THREE.Vector3; phase: 'climb' | 'vault' } | null = null;
   quickTurn = 0;
   private quickTurnFrom = 0;
+  /** caught in a bear trap: can't move */
+  trapT = 0;
   noise = 0;
   aimPoint = new THREE.Vector3();
   aimHitEnemy: Enemy | null = null;
@@ -352,7 +354,8 @@ export class Player {
     }
 
     // movement
-    const mi = this.moveInput();
+    const mi = this.trapT > 0 ? { x: 0, z: 0, mag: 0 } : this.moveInput();
+    if (this.trapT > 0) this.trapT -= dt;
     this.sprinting = inp.isDown('sprint') && mi.z > 0.3 && !this.aiming && !this.guard && !this.crouch && this.quickTurn <= 0;
     let speed = this.aiming ? 1.35 : this.guard ? 1.2 : this.crouch ? 1.25 : this.sprinting ? 5.0 : 2.9;
     if (this.reloadT >= 0 && !this.aiming) speed = Math.min(speed, 2.4);

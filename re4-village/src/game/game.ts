@@ -194,6 +194,32 @@ export class Game {
     this.loadArea(this.test ? (this.flags.testArea as string) ?? 'forest' : 'forest', 'start');
   }
 
+  private pendingArea: { id: string; entry: string; t: number } | null = null;
+
+  /** Fade out, then load an area (used by in-game exits). */
+  requestArea(id: string, entry: string) {
+    if (this.pendingArea) return;
+    this.pendingArea = { id, entry, t: 0 };
+    this.hud.setPrompt('', 'F');
+  }
+
+  private updatePendingArea(dt: number) {
+    const pa = this.pendingArea!;
+    pa.t += dt;
+    this.renderer.post.fade = Math.min(1, pa.t / 0.5);
+    if (pa.t >= 0.6) {
+      this.pendingArea = null;
+      this.hud.menus.loading();
+      // let the loading text paint before the synchronous build
+      requestAnimationFrame(() =>
+        setTimeout(() => {
+          this.hud.menus.close();
+          this.loadArea(pa.id, pa.entry);
+        }, 30),
+      );
+    }
+  }
+
   loadArea(id: string, entry: string, pos?: [number, number, number], yaw?: number) {
     this.clearArea();
     this.areaEntry = entry;
@@ -407,7 +433,9 @@ export class Game {
     post.damage = Math.max(0, post.damage - dt0 * 1.6);
     post.flash = Math.max(0, post.flash - dt0 * 0.9);
 
-    if (this.state === 'play') {
+    if (this.state === 'play' && this.pendingArea) {
+      this.updatePendingArea(dt0);
+    } else if (this.state === 'play') {
       this.playTime += dt0;
       this.updatePlay(dt);
       this.runTimers();
@@ -418,7 +446,7 @@ export class Game {
       post.fade = clamp((this.deadT - 2.2) / 1.2, 0, 0.85);
       if (this.deadT > 3.2) this.hud.showDeath(true);
     }
-    if (this.state === 'play' && post.fade > 0 && !this.cutscene?.steps[this.cutscene.i]?.freeze) post.fade = Math.max(0, post.fade - dt0 * 1.5);
+    if (this.state === 'play' && !this.pendingArea && post.fade > 0 && !this.cutscene?.steps[this.cutscene.i]?.freeze) post.fade = Math.max(0, post.fade - dt0 * 1.5);
     post.lowHealth = this.player.alive ? clamp(1 - this.player.hp / (this.player.maxHp * 0.3), 0, 1) : 0;
 
     if (this.state === 'title' && this.level) this.updateTitle(dt0);
@@ -1126,11 +1154,8 @@ export class Game {
     this.audio.play('leon_hurt_big', p.pos);
     this.camera.shake(0.5);
     this.renderer.post.damage = 1;
-    p.state = 'locked';
+    p.trapT = 1.6;
     this.hud.toast('踩到捕兽夹！');
-    this.after(1.5, () => {
-      if (p.state === 'locked') p.state = 'move';
-    });
   }
 
   onMedallion() {

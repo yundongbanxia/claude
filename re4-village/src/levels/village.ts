@@ -27,7 +27,7 @@ function at(tw: (x: number, z: number) => [number, number], lx: number, lz: numb
 }
 
 const SPAWNS: [number, number][] = [
-  [-50, 4], [-44, -26], [-22, -46], [18, -46], [40, -8], [44, 20], [22, 46], [-30, 42], [0, 56], [-46, 24],
+  [-43, 4], [-40, -26], [-22, -44], [18, -44], [40, -8], [41, 20], [22, 44], [-30, 41], [0, 50], [-42, 24],
 ];
 
 export function buildVillage(g: Game): AreaInstance {
@@ -242,9 +242,9 @@ export function buildVillage(g: Game): AreaInstance {
         } else updateSiege(gg, dt);
       }
       // exit through the gate
-      if (gate.isOpen && p.x > 48 && Math.abs(p.z + 24) < 3) gg.loadArea('farm', 'south');
+      if (gate.isOpen && p.x > 48 && Math.abs(p.z + 24) < 3) gg.requestArea('farm', 'south');
       // back to the forest
-      if (p.z > 58 && Math.abs(p.x) < 5) gg.loadArea('forest', 'north');
+      if (p.z > 58 && Math.abs(p.x) < 5) gg.requestArea('forest', 'north');
       void dist2;
     },
   };

@@ -229,7 +229,7 @@ export function buildForest(g: Game): AreaInstance {
       // exit to village
       if (p.z < -181 && Math.abs(p.x) < 4) {
         gg.flags.forest_done = true;
-        gg.loadArea('village', 'south');
+        gg.requestArea('village', 'south');
       }
     },
     onEnemyKilled(gg: Game, e: Enemy) {
