@@ -546,14 +546,20 @@ export class Enemy {
 
     // melee range logic
     const range = this.attackRange();
-    if (sameLevel && d < range + 0.2 && this.attackCd <= 0) {
-      if (this.token || g.director.requestToken(this)) {
+    if (sameLevel && d < range + (p.state === 'grabbed' ? 0.6 : 0.3) && this.attackCd <= 0) {
+      if (g.director.requestToken(this)) {
         this.token = true;
         this.startAttack();
         return;
       }
     }
-    // close but no token: hold/circle
+    // close: the token holder closes in to strike, the rest hold and circle
+    if (sameLevel && d < this.holdDist + 0.6 && !this.isSalvador && this.attackCd <= 0 && g.director.requestToken(this)) {
+      this.token = true;
+      this.steerTo(p.pos.x, p.pos.z, 1.7, dt);
+      this.anim.play(G.walk, { speed: 1.1 });
+      return;
+    }
     if (sameLevel && d < this.holdDist + 0.6 && !this.token && !this.isSalvador) {
       this.faceTo(p.pos, dt * 6);
       const ang = yawFromDir(-dx, -dz) + this.holdAngle * 0.6;
@@ -880,6 +886,13 @@ export class Enemy {
     const g = this.g;
     const p = g.player;
     if (p.grabbedBy !== this) {
+      this.endGrab();
+      return;
+    }
+    if (this.stateT > 4.2) {
+      // shove the player to the ground
+      p.releaseGrab(false);
+      p.hurt(90 * g.enemyDamageMult(), this.pos, 'heavy');
       this.endGrab();
       return;
     }

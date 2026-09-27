@@ -40,7 +40,8 @@ export class Director {
   requestToken(e: Enemy): boolean {
     if (this.tokens.has(e)) return true;
     // prune
-    for (const t of this.tokens) if (!t.alive || t.state !== 'attack') this.tokens.delete(t);
+    const pp = this.g.player.pos;
+    for (const t of this.tokens) if (!t.alive || (t.state !== 'attack' && t.state !== 'chase') || t.pos.distanceTo(pp) > 4.5) this.tokens.delete(t);
     if (e.isSalvador) {
       this.tokens.add(e);
       return true;

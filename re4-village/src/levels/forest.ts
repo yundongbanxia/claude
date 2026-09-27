@@ -192,14 +192,14 @@ export function buildForest(g: Game): AreaInstance {
         if (e) {
           gg.playCutscene(
             [
-              { dur: 2.4, cam: { pos: e.pos.clone().add(new THREE.Vector3(-2.2, 1.7, 1.5)), look: e.headPos, fov: 40 }, sub: '里昂：「打扰一下，我在找一个女孩……」' },
+              { dur: 2.4, cam: { pos: e.pos.clone().add(new THREE.Vector3(2.6, 1.8, 3.2)), look: e.headPos.add(new THREE.Vector3(0.6, -0.3, 1.2)), fov: 45 }, sub: '里昂：「打扰一下，我在找一个女孩……」' },
               {
                 dur: 1.6,
                 onStart: () => {
                   e.faceTo(gg.player.pos, 10);
                   gg.audio.shout(e.headPos, '¡Lárgate de aquí!', 0.9);
                 },
-                cam: { pos: e.pos.clone().add(new THREE.Vector3(-1.4, 1.6, 0.6)), look: e.headPos, fov: 35 },
+                cam: { pos: e.pos.clone().add(new THREE.Vector3(1.2, 1.65, 1.5)), look: e.headPos, fov: 38 },
                 sub: '村民：「¡Lárgate de aquí!」（滚出去！）',
               },
             ],

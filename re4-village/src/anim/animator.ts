@@ -276,8 +276,20 @@ export class Animator {
       if (this.fade >= this.fadeDur) this.prev = null;
     }
     if (this.upper) {
-      this.upper.time += dt * this.upper.speed;
-      if (!this.upper.clip.loop && this.upper.time > this.upper.clip.duration) this.upper.time = this.upper.clip.duration;
+      const u = this.upper;
+      const before = u.time;
+      u.time += dt * u.speed;
+      if (!u.clip.loop && u.time > u.clip.duration) u.time = u.clip.duration;
+      if (this.onEvent && this.upperTarget > 0 && u.clip.events.length) {
+        const dur = u.clip.duration;
+        for (const e of u.clip.events) {
+          if (u.clip.loop && dur > 0) {
+            const b = before % dur, a = u.time % dur;
+            const crossed = a >= b ? e.t > b && e.t <= a : e.t > b || e.t <= a;
+            if (crossed && u.time !== before) this.onEvent(e.name);
+          } else if (e.t > before && e.t <= u.time) this.onEvent(e.name);
+        }
+      }
     }
     const uStep = dt * 8;
     this.upperWeight += Math.max(-uStep, Math.min(uStep, this.upperTarget - this.upperWeight));

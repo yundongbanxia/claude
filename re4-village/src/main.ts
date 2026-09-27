@@ -61,6 +61,7 @@ if (startArea) {
 } else {
   game.setState('title');
   hud.setGameplayVisible(false);
+  game.showTitleBackdrop();
   hud.menus.title();
 }
 

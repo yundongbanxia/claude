@@ -85,7 +85,7 @@ export class MerchantUI {
     const head = el('div', { class: 'merchant-head' }, p);
     const q = { buy: "What're ya buyin'?", sell: "What're ya sellin'?", upgrade: 'Tune-up, stranger?', repair: "Let's sharpen that knife.", trade: 'Got some spinel for me?' }[this.tab];
     el('span', { class: 'q' }, head, `“${q}”`);
-    el('span', { class: 'money' }, head, `₧ ${g.inv.pesetas.toLocaleString()}　尖晶石 ×${g.inv.count('spinel')}`);
+    el('span', { class: 'money' }, head, `${g.inv.pesetas.toLocaleString()} PTAS　尖晶石 ×${g.inv.count('spinel')}`);
     const tabs = el('div', { class: 'tabs' }, p);
     const names: [Tab, string][] = [
       ['buy', '购买'],
@@ -168,7 +168,7 @@ export class MerchantUI {
     for (const s of STOCK) {
       const d = ITEMS[s.id];
       if (s.once && (g.flags['bought_' + s.id] || (d.weapon && g.inv.hasWeapon(d.weapon)))) continue;
-      this.row(list, s.label ?? d.name, s.desc ?? d.desc, `₧ ${s.price.toLocaleString()}`, '购买', g.inv.pesetas >= s.price, () => {
+      this.row(list, s.label ?? d.name, s.desc ?? d.desc, `${s.price.toLocaleString()} PTAS`, '购买', g.inv.pesetas >= s.price, () => {
         if (!this.pay(s.price)) return;
         if (s.id === 'case_l') {
           g.inv.resize(12, 8);
@@ -198,7 +198,7 @@ export class MerchantUI {
       if (unit <= 0) continue;
       const price = unit * (d.stack > 1 ? it.count : 1);
       const isOnlyWeapon = !!it.weapon && inv.weapons().length <= 1;
-      this.row(list, d.name + (d.stack > 1 ? ` ×${it.count}` : ''), d.desc, `₧ ${price.toLocaleString()}`, '出售', !isOnlyWeapon, () => {
+      this.row(list, d.name + (d.stack > 1 ? ` ×${it.count}` : ''), d.desc, `${price.toLocaleString()} PTAS`, '出售', !isOnlyWeapon, () => {
         inv.remove(it);
         if (it.uid === g.player.weaponUid) g.player.equip(inv.weapons()[0]?.uid ?? null);
         inv.pesetas += price;
@@ -209,7 +209,7 @@ export class MerchantUI {
     for (const [id, n] of Object.entries(inv.valuables)) {
       const d = ITEMS[id];
       if (!d || d.sell <= 0 || n <= 0 || d.kind === 'resource') continue;
-      this.row(list, `${d.name} ×${n}`, d.desc, `₧ ${(d.sell * n).toLocaleString()}`, '出售', true, () => {
+      this.row(list, `${d.name} ×${n}`, d.desc, `${(d.sell * n).toLocaleString()} PTAS`, '出售', true, () => {
         inv.take(id, n);
         inv.pesetas += d.sell * n;
         g.audio.play('buy');
@@ -233,7 +233,7 @@ export class MerchantUI {
         const next = lv < max ? (stat === 'power' ? wd.damage[lv + 1] : stat === 'capacity' ? wd.capacity[lv + 1] : stat === 'reload' ? wd.reload[lv + 1] + 's' : wd.rate[lv + 1] + 's') : '';
         const pips = `<span class="lvl">${Array.from({ length: max + 1 }, (_, i) => `<i class="${i <= lv ? 'on' : ''}"></i>`).join('')}</span>`;
         const price = lv < max ? costs[lv] : 0;
-        this.row(list, `${STAT_NAMES[stat]} ${pips}`, lv < max ? `${cur} → ${next}` : `${cur}（已满）`, lv < max ? `₧ ${price.toLocaleString()}` : '—', '改造', lv < max && g.inv.pesetas >= price, () => {
+        this.row(list, `${STAT_NAMES[stat]} ${pips}`, lv < max ? `${cur} → ${next}` : `${cur}（已满）`, lv < max ? `${price.toLocaleString()} PTAS` : '—', '改造', lv < max && g.inv.pesetas >= price, () => {
           if (!this.pay(price)) return;
           ws.lv[stat]++;
           if (stat === 'capacity') ws.mag = Math.min(ws.mag, wCap(ws));
@@ -248,7 +248,7 @@ export class MerchantUI {
     const p = g.player;
     const missing = KNIFE_MAX - p.knife;
     const cost = Math.ceil(missing * 5 / 100) * 100;
-    this.row(list, '战斗小刀', `耐久度 ${Math.round((p.knife / KNIFE_MAX) * 100)}%${p.knife <= 0 ? '（已损坏）' : ''}`, missing > 0 ? `₧ ${cost.toLocaleString()}` : '—', '修理', missing > 0 && g.inv.pesetas >= cost, () => {
+    this.row(list, '战斗小刀', `耐久度 ${Math.round((p.knife / KNIFE_MAX) * 100)}%${p.knife <= 0 ? '（已损坏）' : ''}`, missing > 0 ? `${cost.toLocaleString()} PTAS` : '—', '修理', missing > 0 && g.inv.pesetas >= cost, () => {
       if (!this.pay(cost)) return;
       p.knife = KNIFE_MAX;
       g.audio.play('metal');

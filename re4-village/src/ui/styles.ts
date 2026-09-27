@@ -57,7 +57,7 @@ canvas#game { position: fixed; inset: 0; width: 100vw; height: 100vh; display: b
 #prompt.melee span.t { color: #fff; font-weight: 700; font-size: 22px; }
 @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.12); } }
 
-#toasts { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#toasts { position: absolute; left: 50%; top: 66%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .toast { font-size: 16px; color: var(--gold2); text-shadow: 0 2px 4px #000, 0 0 12px rgba(0,0,0,.8); animation: toastIn .15s ease-out; }
 @keyframes toastIn { from { opacity: 0; transform: translateY(6px); } }
 #feed { position: absolute; right: 30px; top: 42%; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
@@ -128,12 +128,13 @@ h1.title em { color: var(--red); font-style: normal; }
 
 /* merchant */
 .shop { display: flex; gap: 24px; }
-.shop .tabs { display: flex; gap: 4px; margin-bottom: 12px; }
-.shop .tabs button { background: transparent; border: 1px solid var(--line); color: var(--dim); padding: 6px 16px; font: 15px var(--font); cursor: pointer; }
-.shop .tabs button.on { background: rgba(216,180,106,.22); color: #fff; }
+.tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.tabs button { background: transparent; border: 1px solid var(--line); color: var(--dim); padding: 6px 16px; font: 15px var(--font); cursor: pointer; }
+.tabs button.on { background: rgba(216,180,106,.22); color: #fff; }
 .shop .list { width: 520px; max-height: 60vh; overflow: auto; }
 .shop .item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 15px; gap: 12px; }
-.shop .item .price { color: var(--gold2); font-family: Arial; min-width: 80px; text-align: right; }
+.shop .item > div:first-child { flex: 1; }
+.shop .item .price { color: var(--gold2); font-family: Arial; min-width: 110px; text-align: right; }
 .shop .item .sub { color: var(--dim); font-size: 12px; display: block; }
 .merchant-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
 .merchant-head .q { font-family: var(--serif); font-size: 26px; color: #9ab0ff; letter-spacing: 2px; }

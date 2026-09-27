@@ -66,7 +66,7 @@ export class DDA {
 
   /** Decide an enemy drop. Returns [itemId, count] or null. */
   rollDrop(inv: Inventory, hpFrac: number, lootMult: number, big = false): [string, number] | null {
-    const chance = clamp((big ? 1 : 0.5) * lootMult * lerp(1.15, 0.9, this.rankN()), 0, 1);
+    const chance = clamp((big ? 1 : 0.56) * lootMult * lerp(1.15, 0.9, this.rankN()), 0, 1);
     if (!rng.chance(chance)) return null;
     const entries: [string, number][] = [];
     // ammo for owned weapons, weighted by scarcity
@@ -92,7 +92,7 @@ export class DDA {
       case 'pesetas':
         return ['pesetas', rng.pick([100, 150, 200, 300, 500])];
       case 'ammo_hg':
-        return ['ammo_hg', rng.int(5, 10)];
+        return ['ammo_hg', rng.int(6, 12)];
       case 'ammo_sg':
         return ['ammo_sg', rng.int(2, 4)];
       case 'ammo_rf':

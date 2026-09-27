@@ -184,21 +184,10 @@ export class Game {
     this.area = area;
     this.level = area.level;
     this.scene.add(area.level.group);
-    // lighting / atmosphere
-    (this.scene.fog as THREE.FogExp2).color.setHex(area.fog.color);
-    (this.scene.fog as THREE.FogExp2).density = area.fog.density;
-    this.skyMat.uniforms.top.value.setHex(area.sky.top);
-    this.skyMat.uniforms.bottom.value.setHex(area.sky.bottom);
-    this.skyMat.uniforms.sunDir.value.copy(area.sunDir);
-    this.skyMat.uniforms.sunCol.value.setHex(area.sunColor);
-    this.sun.color.setHex(area.sunColor);
-    this.sun.intensity = area.sunIntensity;
-    this.hemi.color.setHex(area.hemi.sky);
-    this.hemi.groundColor.setHex(area.hemi.ground);
-    this.hemi.intensity = area.hemi.intensity;
-    this.renderer.post.exposure = area.exposure ?? 1;
+    this.applyAreaLook(area);
     // player
     const e = area.entries[entry] ?? Object.values(area.entries)[0];
+    this.player.rig.root.visible = true;
     this.player.reset();
     if (pos) {
       this.player.place(pos[0], pos[2], yaw ?? 0);
@@ -214,7 +203,71 @@ export class Game {
     this.setState('play');
     this.hud.areaTitle(area.name);
     area.onEnter?.(this, entry);
-    this.checkpoint();
+    // entering an area is a checkpoint; restoring one (explicit pos) keeps the existing checkpoint
+    if (!pos) this.checkpoint();
+  }
+
+  private applyAreaLook(area: AreaInstance) {
+    (this.scene.fog as THREE.FogExp2).color.setHex(area.fog.color);
+    (this.scene.fog as THREE.FogExp2).density = area.fog.density;
+    this.skyMat.uniforms.top.value.setHex(area.sky.top);
+    this.skyMat.uniforms.bottom.value.setHex(area.sky.bottom);
+    this.skyMat.uniforms.sunDir.value.copy(area.sunDir);
+    this.skyMat.uniforms.sunCol.value.setHex(area.sunColor);
+    this.sun.color.setHex(area.sunColor);
+    this.sun.intensity = area.sunIntensity;
+    this.hemi.color.setHex(area.hemi.sky);
+    this.hemi.groundColor.setHex(area.hemi.ground);
+    this.hemi.intensity = area.hemi.intensity;
+    this.renderer.post.exposure = area.exposure ?? 1;
+  }
+
+  /** Live 3D backdrop for the title screen: the village square at dusk. */
+  showTitleBackdrop() {
+    this.clearArea();
+    const saved = this.flags;
+    this.flags = { title: true };
+    const area = buildArea('village', this);
+    this.flags = saved;
+    this.area = area;
+    this.level = area.level;
+    this.scene.add(area.level.group);
+    this.applyAreaLook(area);
+    this.player.rig.root.visible = false;
+    for (let i = 0; i < 5; i++) {
+      const a = -0.8 + i * 0.45 + Math.PI / 2;
+      const x = Math.cos(a) * 4.2, z = Math.sin(a) * 4.2;
+      const e = new Enemy(this, { kind: i === 2 ? 'villager_f' : i === 4 ? 'pitchfork' : 'villager', x, z, yaw: Math.atan2(x, z), state: 'idle' });
+      this.enemies.push(e);
+    }
+    this.renderer.post.fade = 1;
+    this.renderer.post.letterbox = 0;
+    this.titleT = 0;
+  }
+
+  titleT = 0;
+
+  private updateTitle(dt: number) {
+    this.titleT += dt;
+    const t = this.titleT * 0.05;
+    const cam = this.camera.cam;
+    cam.position.set(Math.sin(t) * 15, 3.2 + Math.sin(t * 0.7) * 0.6, 16 + Math.cos(t) * 5);
+    cam.lookAt(0, 2.4, -6);
+    cam.fov = 45;
+    cam.updateProjectionMatrix();
+    for (const e of this.enemies) {
+      e.anim.extra.fill(0);
+      e.anim.update(dt);
+    }
+    this.updateLevelObjects(dt);
+    this.fx.update(dt);
+    this.renderer.post.fade = Math.max(0, this.renderer.post.fade - dt * 0.5);
+    if (this.area) {
+      const sd = this.area.sunDir;
+      this.sun.position.set(sd.x * 60, sd.y * 60, sd.z * 60);
+      this.sun.target.position.set(0, 0, 0);
+      this.sky.position.copy(cam.position);
+    }
   }
 
   private clearArea() {
@@ -276,6 +329,7 @@ export class Game {
     this.player.weaponUid = null;
     this.player.equip(s.weaponUid ?? this.inv.weapons()[0]?.uid ?? null);
     this.loadArea(s.area, s.entry, s.pos, s.yaw);
+    if (!s.pos) this.checkpointData = s;
   }
 
   checkpoint(pos?: boolean) {
@@ -347,6 +401,7 @@ export class Game {
     if (this.state === 'play' && post.fade > 0 && !this.cutscene?.steps[this.cutscene.i]?.freeze) post.fade = Math.max(0, post.fade - dt0 * 1.5);
     post.lowHealth = this.player.alive ? clamp(1 - this.player.hp / (this.player.maxHp * 0.3), 0, 1) : 0;
 
+    if (this.state === 'title' && this.level) this.updateTitle(dt0);
     // camera
     if (this.state === 'play' || this.state === 'dead') {
       this.camera.update(dt0, this.player.pos, this.level?.cw ?? null);
@@ -822,7 +877,8 @@ export class Game {
       return;
     }
     if (e.drop) {
-      this.spawnPickup(e.drop, 1, pos);
+      const n = e.drop === 'ammo_hg' ? 10 : e.drop === 'ammo_sg' ? 4 : e.drop === 'ammo_rf' ? 3 : e.drop === 'pesetas' ? 500 : 1;
+      this.spawnPickup(e.drop, n, pos);
       return;
     }
     const drop = this.dda.rollDrop(this.inv, this.player.hp / this.player.maxHp, this.diff.lootMult);

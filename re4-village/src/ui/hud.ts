@@ -231,7 +231,7 @@ export class Hud {
   }
 
   pesetas(total: number, delta: number) {
-    this.pesetasEl.innerHTML = `₧ ${total.toLocaleString()}<small>+${delta.toLocaleString()}</small>`;
+    this.pesetasEl.innerHTML = `${total.toLocaleString()} PTAS<small>+${delta.toLocaleString()}</small>`;
     this.pesetasEl.style.opacity = '1';
     this.pesT = 2.5;
   }

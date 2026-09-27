@@ -58,7 +58,7 @@ export class Menus {
     const g = this.g;
     g.audio.music?.setMode('title');
     const s = this.make('screen');
-    s.style.background = 'radial-gradient(ellipse at 50% 40%, rgba(40,20,14,.55), rgba(0,0,0,.92) 70%)';
+    s.style.background = 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,.15), rgba(0,0,0,.85) 80%)';
     el('h1', { class: 'title' }, s, '生化危机 <em>4</em>');
     el('div', { class: 'subtitle2' }, s, 'RE:4 VILLAGE · 村庄篇 · 同人复刻');
     const m = el('div', { class: 'menu' }, s);
@@ -168,11 +168,7 @@ export class Menus {
       if (g.checkpointData) g.restore(g.checkpointData);
       this.startPlay();
     });
-    this.button(m, '返回标题', () => {
-      g.setState('title');
-      g.hud.setGameplayVisible(false);
-      this.title();
-    });
+    this.button(m, '返回标题', () => this.toTitle());
     this.stats(s);
   }
 
@@ -181,7 +177,7 @@ export class Menus {
     const st = g.stats;
     const acc = g.combat.shots ? Math.round((g.combat.hits / g.combat.shots) * 100) : 0;
     const t = Math.floor(g.playTime);
-    const info = el('div', {}, s, `${g.area?.name ?? ''} · 难度：${g.diff.name} · 用时 ${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')} · 击杀 ${st.kills} · 命中率 ${acc}% · ₧ ${g.inv.pesetas.toLocaleString()}`);
+    const info = el('div', {}, s, `${g.area?.name ?? ''} · 难度：${g.diff.name} · 用时 ${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')} · 击杀 ${st.kills} · 命中率 ${acc}% · ${g.inv.pesetas.toLocaleString()} PTAS`);
     info.style.cssText = 'position:absolute;bottom:26px;color:#8a8478;font-size:13px;letter-spacing:1px;';
   }
 
@@ -202,11 +198,15 @@ export class Menus {
       g.continueFromCheckpoint();
       this.startPlay();
     });
-    this.button(m, '返回标题', () => {
-      g.setState('title');
-      g.hud.setGameplayVisible(false);
-      this.title();
-    });
+    this.button(m, '返回标题', () => this.toTitle());
+  }
+
+  toTitle() {
+    const g = this.g;
+    g.setState('title');
+    g.hud.setGameplayVisible(false);
+    g.showTitleBackdrop();
+    this.title();
   }
 
   settings(back: () => void) {
@@ -344,16 +344,13 @@ export class Menus {
       ['爆头数', String(g.combat.headshots)],
       ['完美/普通格挡', String(st.parries)],
       ['死亡次数', String(st.deaths)],
-      ['获得比塞塔', `₧ ${st.pesetas.toLocaleString()}`],
+      ['获得比塞塔', `${st.pesetas.toLocaleString()} PTAS`],
     ];
     for (const [a, b] of rows) el('div', { class: 'row' }, p, `<span>${a}</span><span>${b}</span>`);
     el('div', { class: 'row' }, p, `<span>评级</span><span class="big">${rank}</span>`);
     el('p', {}, p, '里昂穿过了村庄的大门……但阿什莉仍然下落不明。<br><span style="color:#888">—— To be continued ——</span>').style.cssText = 'line-height:1.9;color:#bbb;margin-top:18px;';
     const m = el('div', { class: 'menu' }, p);
-    this.button(m, '返回标题', () => {
-      g.setState('title');
-      this.title();
-    });
+    this.button(m, '返回标题', () => this.toTitle());
   }
 
   loading(text = '载入中……') {

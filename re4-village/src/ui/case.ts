@@ -118,7 +118,7 @@ export class CaseUI {
     const inv = g.inv;
     this.side.innerHTML = '';
     const head = el('div', { class: 'case-info' }, this.side);
-    head.innerHTML = `<b>里昂</b>　体力 ${Math.round(g.player.hp)} / ${g.player.maxHp}<br>小刀耐久 ${Math.round((g.player.knife / 1000) * 100)}%　₧ ${inv.pesetas.toLocaleString()}`;
+    head.innerHTML = `<b>里昂</b>　体力 ${Math.round(g.player.hp)} / ${g.player.maxHp}<br>小刀耐久 ${Math.round((g.player.knife / 1000) * 100)}%　${inv.pesetas.toLocaleString()} PTAS`;
     if (this.pending && this.pendingInst) {
       const p = el('div', { class: 'pending' }, this.side, `<b style="color:#fdd">待放置：${ITEMS[this.pending.id].name}${this.pending.count > 1 ? ' ×' + this.pending.count : ''}</b><br>把它拖进手提箱，或者丢弃其他物品腾出空间。`);
       const pd = el('div', { class: 'case-item' }, p, itemIcon(this.pendingInst.id, this.pendingInst.rot));

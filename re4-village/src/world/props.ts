@@ -707,7 +707,7 @@ function ensureVegGeos() {
   for (const [bx, by, bz, r] of [[0, 0.35, 0, 0.5], [0.35, 0.25, 0.1, 0.35], [-0.3, 0.28, -0.1, 0.38], [0.05, 0.22, 0.35, 0.3]]) {
     const b = new THREE.IcosahedronGeometry(r, 0);
     b.translate(bx, by, bz);
-    blobs.push(tint(b.toNonIndexed(), new THREE.Color(0x3e4a2c).lerp(new THREE.Color(0x56603a), Math.random())));
+    blobs.push(tint(b, new THREE.Color(0x3e4a2c).lerp(new THREE.Color(0x56603a), Math.random())));
   }
   bushGeo = merge(blobs);
   const rk = new THREE.DodecahedronGeometry(1, 0);

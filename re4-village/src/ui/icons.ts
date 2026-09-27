@@ -28,11 +28,7 @@ export function itemIcon(id: string, rot = false): string {
     }
     case id.startsWith('herb'): {
       const cols: string[] = [];
-      if (id.includes('g')) cols.push('#4a8a30');
-      if (id.includes('r')) cols.push('#b03028');
-      if (id.includes('y')) cols.push('#c8b030');
-      if (id === 'herb_gg' || id === 'herb_ggg') cols.push('#5a9a38');
-      if (id === 'herb_ggg') cols.push('#6aa840');
+      for (const ch of id.slice(5)) cols.push(ch === 'g' ? '#4a8a30' : ch === 'r' ? '#b03028' : '#c8b030');
       body = `<path d="M${W * 0.25} ${H * 0.6} h${W * 0.5} l${-W * 0.08} ${H * 0.35} h${-W * 0.34} z" fill="#7a5a38" stroke="#b08a60" stroke-width="2"/>`;
       cols.forEach((col, i) => {
         const x = W * (0.5 + (i - (cols.length - 1) / 2) * 0.2);

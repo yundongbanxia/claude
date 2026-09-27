@@ -508,8 +508,7 @@ export class DroppedProp {
     if (this.obj.position.y < gy + 0.05) {
       this.obj.position.y = gy + 0.05;
       this.rest = true;
-      this.obj.rotation.x = Math.PI / 2;
-      this.obj.rotation.z = 0;
+      this.obj.rotation.set(0, this.obj.rotation.y, Math.PI / 2 - 0.15);
     }
   }
 }

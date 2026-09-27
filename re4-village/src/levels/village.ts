@@ -182,17 +182,18 @@ export function buildVillage(g: Game): AreaInstance {
     spawn(gg: Game) {
       const f = gg.flags;
       if (!f.siege_done) {
+        const aw = !!f.siege_started;
         // villagers gathered around the pyre
         for (let i = 0; i < 4; i++) {
           const a = -0.6 + i * 0.5 + Math.PI / 2;
           const x = Math.cos(a) * 4, z = Math.sin(a) * 4;
-          gg.spawnEnemy({ kind: i === 1 ? 'villager_f' : i === 3 ? 'pitchfork' : 'villager', x, z, yaw: Math.atan2(x, z), state: 'idle', tag: 'pyre' + i });
+          gg.spawnEnemy({ kind: i === 1 ? 'villager_f' : i === 3 ? 'pitchfork' : 'villager', x, z, yaw: Math.atan2(x, z), state: 'idle', tag: 'pyre' + i, aware: aw });
         }
-        gg.spawnEnemy({ kind: 'villager', x: 18, z: 10, yaw: 1.2, state: 'work', weapon: 'axe', tag: 'v_farmer' });
-        gg.spawnEnemy({ kind: 'villager_f', x: -6.5, z: 9.5, yaw: -2.2, state: 'idle', tag: 'v_well' });
-        gg.spawnEnemy({ kind: 'villager', x: -8, z: -27, yaw: 0.4, state: 'idle', weapon: 'sickle', tag: 'v_h6' });
-        gg.spawnEnemy({ kind: 'thrower', x: 35, z: -2, y: wt.top, yaw: -1.4, state: 'idle', tag: 'v_tower' });
-        gg.spawnEnemy({ kind: 'pitchfork', x: -16, z: 23, state: 'patrol', patrol: [[-16, 23], [-10, 30], [-18, 32]], tag: 'v_patrol' });
+        gg.spawnEnemy({ kind: 'villager', x: 18, z: 10, yaw: 1.2, state: 'work', weapon: 'axe', tag: 'v_farmer', aware: aw });
+        gg.spawnEnemy({ kind: 'villager_f', x: -6.5, z: 9.5, yaw: -2.2, state: 'idle', tag: 'v_well', aware: aw });
+        gg.spawnEnemy({ kind: 'villager', x: -8, z: -27, yaw: 0.4, state: 'idle', weapon: 'sickle', tag: 'v_h6', aware: aw });
+        gg.spawnEnemy({ kind: 'thrower', x: 35, z: -2, y: wt.top, yaw: -1.4, state: 'idle', tag: 'v_tower', aware: aw });
+        gg.spawnEnemy({ kind: 'pitchfork', x: -16, z: 23, state: 'patrol', patrol: [[-16, 23], [-10, 30], [-18, 32]], tag: 'v_patrol', aware: aw });
       }
       // items
       gg.spawnPickup('w870', 1, at(hw, -3.2, -3.4, hb + 3.84), 'v_shotgun');
