@@ -1,0 +1,26 @@
+{
+  "name": "re4-village",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Resident Evil 4 Remake – village chapter fan remake, low-poly, runs in a single HTML file",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "release": "vite build && node scripts/release.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/three": "^0.186.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^4.1.11"
+  }
+}
