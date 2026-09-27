@@ -604,8 +604,8 @@ export class Player {
     this.noise = 35;
     g.alertNoise(this.pos, 35);
     g.camera.shake(wd.kind === 'pistol' ? 0.05 : 0.18);
-    if (wd.kind === 'rifle' && w.weapon!.mag > 0) setTimeout(() => g.audio.play('bolt', this.pos), 500);
-    if (wd.kind === 'shotgun') setTimeout(() => g.audio.play('slide', this.pos, 0.8, 0.7), 380);
+    if (wd.kind === 'rifle' && w.weapon!.mag > 0) g.after(0.5, () => g.audio.play('bolt', this.pos));
+    if (wd.kind === 'shotgun') g.after(0.38, () => g.audio.play('slide', this.pos, 0.8, 0.7));
   }
 
   /** Muzzle world position & barrel dir. */

@@ -178,7 +178,7 @@ export function buildForest(g: Game): AreaInstance {
         ], () => {
           gg.hud.objective('沿着小路前往村庄');
           gg.hud.toast('按住 鼠标右键 瞄准，左键 射击', 4);
-          setTimeout(() => gg.hud.toast('打中头部或腿部让敌人硬直，然后按 F 使用体术', 4), 4500);
+          gg.after(4.5, () => gg.hud.toast('打中头部或腿部让敌人硬直，然后按 F 使用体术', 4));
         });
       } else gg.hud.objective('沿着小路前往村庄');
     },

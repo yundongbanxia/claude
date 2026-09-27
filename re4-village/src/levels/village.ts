@@ -258,7 +258,7 @@ export function buildVillage(g: Game): AreaInstance {
     for (const e of gg.enemies) if (e.alive) e.becomeAware(0.3 + Math.random() * 1.2, e === shouter);
     gg.hud.objective('活下去！');
     gg.hud.toast('村民发现了你！', 2.5);
-    setTimeout(() => gg.hud.toast('提示：两层的房子可以推书架堵门，推倒梯子阻挡敌人', 5), 6000);
+    gg.after(6.0, () => gg.hud.toast('提示：两层的房子可以推书架堵门，推倒梯子阻挡敌人', 5));
     gg.checkpoint(true);
   }
 

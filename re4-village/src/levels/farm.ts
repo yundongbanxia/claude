@@ -195,7 +195,7 @@ export function buildFarm(g: Game): AreaInstance {
       if (!f.farm_intro) {
         f.farm_intro = true;
         gg.hud.subtitle('商人："Got a selection of good things on sale, stranger."', 4);
-        setTimeout(() => gg.hud.toast('委托：击碎农场里的 5 个蓝色徽章（射击它们），可向商人领取奖励', 5), 4500);
+        gg.after(4.5, () => gg.hud.toast('委托：击碎农场里的 5 个蓝色徽章（射击它们），可向商人领取奖励', 5));
       }
       gg.hud.objective(f.farm_gate_open ? '穿过北边的大门' : '穿过农场，打开北边的大门');
     },

@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import type { Game } from '../game/game';
 import type { Pickup } from '../game/entities';
 import { ITEMS, RECIPES, HERB_MIX, mixKey } from '../data/items';
@@ -38,6 +39,7 @@ export class CaseUI {
     this.close(false);
     this.pending = pending;
     this.pendingInst = pending ? this.g.inv.newInst(pending.id, pending.count) : null;
+    if (pending?.weaponState && this.pendingInst) this.pendingInst.weapon = pending.weaponState;
     this.sel = null;
     this.wrap = el('div', { id: 'case', class: 'interactive' }, this.root);
     const left = el('div', {}, this.wrap);
@@ -230,11 +232,8 @@ export class CaseUI {
     if (it.uid === g.player.weaponUid) g.player.equip(g.inv.weapons()[0]?.uid ?? null);
     // drop on the ground so it can be picked up again
     const p = g.player.pos;
-    const pk = g.spawnPickup(it.id, it.count, p.clone().add({ x: Math.sin(g.player.yaw) * 0.6, y: 0, z: Math.cos(g.player.yaw) * 0.6 } as never));
-    if (pk && it.weapon) {
-      // keep weapon state (mag/upgrades) when picked up again
-      (pk as unknown as { weaponState?: unknown }).weaponState = it.weapon;
-    }
+    const pk = g.spawnPickup(it.id, it.count, new THREE.Vector3(p.x - Math.sin(g.player.yaw) * 0.6, p.y, p.z - Math.cos(g.player.yaw) * 0.6));
+    if (pk && it.weapon) pk.weaponState = it.weapon; // keep mag/upgrades
     this.sel = null;
     g.audio.play('item_drop');
   }

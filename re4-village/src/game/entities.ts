@@ -46,7 +46,7 @@ export class Projectile {
     this.obj.position.copy(this.pos);
     this.spin = new THREE.Vector3(kind === 'axe' || kind === 'sickle' ? -14 : rng.range(-8, 8), 0, rng.range(-3, 3));
     if (kind === 'axe' || kind === 'sickle') this.obj.rotation.y = yawFromDir(d.x, d.z);
-    g.scene.add(this.obj);
+    (g.level ? g.level.group : g.scene).add(this.obj);
   }
 
   get shootTarget() {
@@ -69,7 +69,7 @@ export class Projectile {
           g.fx.sparks(this.pos, 6);
           this.resting = true;
           this.alive = false;
-          setTimeout(() => this.dispose(), 4000);
+          this.g.after(4, () => this.dispose());
           return;
         }
         // bounce
@@ -90,7 +90,7 @@ export class Projectile {
           this.resting = true;
           this.alive = false;
           g.audio.play('thud', this.pos, 0.3, 1.5);
-          setTimeout(() => this.dispose(), 4000);
+          this.g.after(4, () => this.dispose());
           return;
         }
         if (Math.abs(this.vel.y) > 1.5) g.audio.play('item_drop', this.pos, 0.5, 0.6);
@@ -217,6 +217,7 @@ export class Pickup {
   glintT = rng.range(0, 1);
   inter: Interactable;
   flag?: string;
+  weaponState?: import('../data/weapons').WeaponState;
 
   constructor(g: Game, id: string, count: number, pos: THREE.Vector3, flag?: string) {
     this.g = g;
@@ -228,7 +229,7 @@ export class Pickup {
     this.mesh.position.copy(this.pos);
     this.mesh.rotation.y = rng.range(0, 6.28);
     this.mesh.castShadow = true;
-    g.scene.add(this.mesh);
+    (g.level ? g.level.group : g.scene).add(this.mesh);
     this.inter = {
       x: this.pos.x,
       y: this.pos.y + 0.3,
@@ -312,7 +313,7 @@ export class Animal {
       }
     }
     this.obj.position.copy(this.pos);
-    g.scene.add(this.obj);
+    (g.level ? g.level.group : g.scene).add(this.obj);
   }
 
   get r() {
@@ -339,9 +340,9 @@ export class Animal {
     this.obj.rotation.z = Math.PI / 2;
     this.pos.y = ground;
     this.obj.position.copy(this.pos);
-    setTimeout(() => {
+    g.after(15, () => {
       this.removed = true;
-    }, 15000);
+    });
   }
 
   update(dt: number) {
@@ -441,7 +442,7 @@ export class BearTrap {
     this.pos = pos.clone();
     this.mesh = new THREE.Mesh(trapGeo, flatMat(0x5a5450));
     this.mesh.position.copy(pos);
-    g.scene.add(this.mesh);
+    (g.level ? g.level.group : g.scene).add(this.mesh);
   }
   get r() {
     return 0.35;
@@ -531,7 +532,7 @@ export class Medallion {
     this.mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0x0a1030 }));
     this.mesh.position.copy(pos);
     this.mesh.rotation.y = yaw;
-    g.scene.add(this.mesh);
+    (g.level ? g.level.group : g.scene).add(this.mesh);
   }
   get r() {
     return 0.2;

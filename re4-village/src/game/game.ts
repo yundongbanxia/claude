@@ -104,6 +104,19 @@ export class Game {
   private promptCache: { text: string; key: string } | null = null;
   pendingPickup: Pickup | null = null;
   areaEntry = '';
+  private timers: { t: number; fn: () => void }[] = [];
+  /** Run fn after `sec` seconds of game time (pauses with the game, cleared on area change). */
+  after(sec: number, fn: () => void) {
+    this.timers.push({ t: this.time + sec, fn });
+  }
+  private runTimers() {
+    if (!this.timers.length) return;
+    const due = this.timers.filter((t) => t.t <= this.time);
+    if (!due.length) return;
+    this.timers = this.timers.filter((t) => t.t > this.time);
+    for (const t of due) t.fn();
+  }
+
   settings = { sens: 1, invertY: false, fov: 60, quality: 'medium' as 'low' | 'medium' | 'high', gore: true, tts: true, master: 0.8, music: 0.55, sfx: 1 };
 
   constructor(canvas: HTMLCanvasElement) {
@@ -290,6 +303,7 @@ export class Game {
     this.fx.clear();
     this.cutscene = null;
     this.camera.override = null;
+    this.timers = [];
     if (this.level) {
       this.scene.remove(this.level.group);
       this.level.dispose();
@@ -392,7 +406,9 @@ export class Game {
     if (this.state === 'play') {
       this.playTime += dt0;
       this.updatePlay(dt);
+      this.runTimers();
     } else if (this.state === 'dead') {
+      this.runTimers();
       this.deadT += dt0;
       this.updateWorld(dt * 0.6, true);
       post.fade = clamp((this.deadT - 2.2) / 1.2, 0, 0.85);
@@ -448,6 +464,15 @@ export class Game {
     }
     if (!this.cutscene && p.state === 'locked') p.state = 'move';
     this.combat.updateAim(p);
+    this.aimAssist(dt);
+    // heartbeat when in danger
+    if (p.alive && p.hp < p.maxHp * 0.25) {
+      this.heartT -= dt;
+      if (this.heartT <= 0) {
+        this.heartT = 0.9;
+        this.audio.heartbeat();
+      }
+    }
     this.updateWorld(dt, false);
     this.dda.update(dt);
     this.area?.update?.(this, dt);
@@ -461,6 +486,36 @@ export class Game {
     }
     // prompt
     this.updatePrompt();
+  }
+
+  private heartT = 0;
+
+  /** Assisted difficulty: gently pull the reticle toward the nearest head while aiming. */
+  private aimAssist(dt: number) {
+    const k = this.diff.aimAssist;
+    const p = this.player;
+    if (k <= 0 || !p.aiming || this.camera.aimT < 0.8) return;
+    const cam = this.camera;
+    const fwd = cam.forward(new THREE.Vector3());
+    let best: THREE.Vector3 | null = null;
+    let bestA = 6 * DEG;
+    for (const e of this.enemies) {
+      if (!e.alive || e.state === 'leave') continue;
+      const h = e.headPos.sub(cam.cam.position);
+      const d = h.length();
+      if (d > 30) continue;
+      const a = h.normalize().angleTo(fwd);
+      if (a < bestA) {
+        bestA = a;
+        best = e.headPos;
+      }
+    }
+    if (!best) return;
+    const d = best.clone().sub(cam.cam.position);
+    const ty = Math.atan2(-d.x, -d.z), tp = Math.atan2(d.y, Math.hypot(d.x, d.z));
+    const f = 1 - Math.exp(-k * 6 * dt);
+    cam.yaw += angleDiff(cam.yaw, ty) * f;
+    cam.pitch += (tp - cam.pitch) * f;
   }
 
   private updateWorld(dt: number, deadMode: boolean) {
@@ -850,15 +905,15 @@ export class Game {
       blend: 1,
     };
     this.audio.play('grab', p.pos);
-    setTimeout(() => {
+    this.after(1.1, () => {
       this.audio.play('decap', p.pos);
       p.decapitate();
       this.camera.shake(0.8);
       this.renderer.post.damage = 1;
       p.hp = 0;
       p.die(false, true);
-      setTimeout(() => (this.camera.override = null), 2500);
-    }, 1100);
+      this.after(2.5, () => (this.camera.override = null));
+    });
   }
 
   onEnemyKilled(e: Enemy, info: DamageInfo) {
@@ -885,9 +940,9 @@ export class Game {
     if (drop) {
       // drop a moment later (RE4 bodies "dissolve" the item out)
       const [id, n] = drop;
-      setTimeout(() => {
+      this.after(0.9, () => {
         if (this.level && this.enemies.includes(e)) this.spawnPickup(id, n, pos);
-      }, 900);
+      });
     }
     void info;
   }
@@ -939,7 +994,7 @@ export class Game {
       this.hud.pesetas(this.inv.pesetas, pk.count);
     } else {
       const d = ITEMS[pk.id];
-      const left = this.inv.add(pk.id, pk.count);
+      const left = this.inv.add(pk.id, pk.count, pk.weaponState);
       if (left === pk.count) {
         this.audio.play('ui_error');
         this.pendingPickup = pk;
@@ -965,7 +1020,7 @@ export class Game {
   }
 
   dropProp(obj: THREE.Object3D, pos: THREE.Vector3, q: THREE.Quaternion) {
-    this.scene.add(obj);
+    (this.level ? this.level.group : this.scene).add(obj);
     this.props.push(new DroppedProp(obj, pos, q));
   }
 
@@ -1068,9 +1123,9 @@ export class Game {
     this.renderer.post.damage = 1;
     p.state = 'locked';
     this.hud.toast('踩到捕兽夹！');
-    setTimeout(() => {
+    this.after(1.5, () => {
       if (p.state === 'locked') p.state = 'move';
-    }, 1500);
+    });
   }
 
   onMedallion() {

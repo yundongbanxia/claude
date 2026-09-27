@@ -157,9 +157,13 @@ export class Enemy {
         height: 1.13, bulk: 1.28, hairStyle: 'bald', apron: 0x5a3a2a,
         extraParts: [
           // burlap sack over head
-          { bone: B.head, shape: 'ball', size: [0.125, 0.15, 0.13], pos: [0, 0.12, 0], color: 0x8a7650, seg: 1 },
-          { bone: B.head, shape: 'box', size: [0.12, 0.04, 0.02], pos: [0, 0.0, -0.1], color: 0x4a3a28 },
-          { bone: B.neck, shape: 'cyl', size: [0.08, 0.085, 0.06], pos: [0, 0.06, 0], color: 0x5a4a30 },
+          { bone: B.head, shape: 'ball', size: [0.13, 0.17, 0.135], pos: [0, 0.13, 0], color: 0x6e5a3c, seg: 1 },
+          { bone: B.head, shape: 'box', size: [0.05, 0.035, 0.03], pos: [-0.045, 0.15, -0.12], color: 0x0a0806 },
+          { bone: B.head, shape: 'box', size: [0.05, 0.035, 0.03], pos: [0.045, 0.15, -0.12], color: 0x0a0806 },
+          { bone: B.head, shape: 'box', size: [0.1, 0.02, 0.03], pos: [0, 0.07, -0.125], color: 0x2a1c12 },
+          { bone: B.head, shape: 'box', size: [0.05, 0.04, 0.02], pos: [0.02, 0.25, -0.1], color: 0x3a2c1c },
+          { bone: B.neck, shape: 'cyl', size: [0.1, 0.105, 0.05], pos: [0, 0.07, 0], color: 0x4a3a24 },
+          { bone: B.neck, shape: 'cyl', size: [0.075, 0.08, 0.02], pos: [0, 0.1, 0], color: 0x2a2014 },
           // bloodstains on apron
           { bone: B.spine, shape: 'box', size: [0.14, 0.12, 0.01], pos: [0.05, 0.05, -0.18], color: 0x4a0a08 },
           { bone: B.hips, shape: 'box', size: [0.18, 0.16, 0.01], pos: [-0.04, -0.15, -0.19], color: 0x3a0806 },

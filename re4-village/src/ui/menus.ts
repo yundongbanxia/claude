@@ -147,13 +147,23 @@ export class Menus {
     }, 6500);
   }
 
+  private escHandler = (e: KeyboardEvent) => {
+    if ((e.code === 'Escape' || e.code === 'KeyP') && this.g.state === 'pause' && this.screen?.dataset.kind === 'pause') {
+      e.preventDefault();
+      this.g.resume();
+    }
+  };
+
   pause(v: boolean) {
+    window.removeEventListener('keydown', this.escHandler);
     if (!v) {
       this.clear();
       return;
     }
     const g = this.g;
     const s = this.make();
+    s.dataset.kind = 'pause';
+    setTimeout(() => window.addEventListener('keydown', this.escHandler), 200);
     el('h2', {}, s, '暂停').style.cssText = 'font-weight:400;letter-spacing:10px;color:var(--gold2);margin-bottom:24px;';
     const m = el('div', { class: 'menu' }, s);
     this.button(m, '继续游戏', () => g.resume());
