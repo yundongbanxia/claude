@@ -1,0 +1,30 @@
+<!doctype html>
+<meta charset="utf-8">
+<body style="margin:0;background:#222">
+<canvas id="c" width="1920" height="1080"></canvas>
+<script src="../js/util.js"></script>
+<script src="../js/plane.js"></script>
+<script>
+const c = document.getElementById('c'), ctx = c.getContext('2d');
+const lin = (a) => a.map((v) => (v / 255) ** 2.2);
+function env(sunAz, sunEl) {
+  const L = U.V.norm([Math.cos(sunEl) * Math.cos(sunAz), Math.sin(sunEl), Math.cos(sunEl) * Math.sin(sunAz)]);
+  return { L, sun: [1.35, 1.2, 1.0], skyTop: lin([90, 130, 200]), skyMid: lin([200, 215, 235]), ground: lin([90, 95, 100]),
+    amb: 0.55, spec: 1, refl: 0.6, rim: [1.2, 0.9, 0.6], rimK: 0.3, exposure: 1 };
+}
+window.renderView = function (view) {
+  ctx.fillStyle = '#6f93c4'; ctx.fillRect(0, 0, 1920, 1080);
+  const cam = new Concorde.Camera(1920, 1080);
+  let pose = { pos: [0, 0, 0], yaw: 0, pitch: 0, roll: 0, droop: 0, gear: 0 };
+  let e = env(0.6, 0.8);
+  if (view === 'top') { cam.lookAt([0, 90, 0.01], [0, 0, 0], 0, 28); }
+  else if (view === 'side') { cam.lookAt([0, 0, 90], [0, 0, 0], 0, 28); }
+  else if (view === 'front') { cam.lookAt([80, 0, 0], [0, 0, 0], 0, 28); pose.gear = 1; }
+  else if (view === 'q1') { cam.lookAt([-45, 25, 55], [0, -1, 0], 0, 34); pose.gear = 0; }
+  else if (view === 'q2') { cam.lookAt([48, -18, 52], [0, -1, 0], 0, 34); pose.gear = 1; pose.droop = 12.5; }
+  else if (view === 'q3') { cam.lookAt([40, 6, 30], [0, -0.5, 0], 0, 30); pose.gear = 1; pose.droop = 12.5; e = env(0.2, 0.5); }
+  else if (view === 'rear') { cam.lookAt([-90, 18, 38], [0, 0, 0], 0, 24); }
+  const n = Concorde.draw(ctx, cam, pose, e);
+  ctx.fillStyle = '#fff'; ctx.font = '20px monospace'; ctx.fillText(view + ' faces=' + n, 20, 30);
+};
+</script>

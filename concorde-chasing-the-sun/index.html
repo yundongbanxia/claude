@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>协和 · 逐日 — Concorde: Chasing the Sun</title>
+<meta name="description" content="一部纯代码生成的短片：协和客机追赶落日的故事。Canvas 2D 软件 3D + WebAudio 实时合成的配乐与音效，没有任何外部素材。">
+<meta name="theme-color" content="#02030a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2302030a'/%3E%3Ccircle cx='42' cy='28' r='12' fill='%23ffb060'/%3E%3Cpath d='M6 40 L50 34 L10 46 Z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+  @font-face { font-family: "CCSerif"; src: url("fonts/serif-sc-400.woff2") format("woff2"); font-weight: 300 500; font-display: swap; }
+  @font-face { font-family: "CCSerif"; src: url("fonts/serif-sc-600.woff2") format("woff2"); font-weight: 600 800; font-display: swap; }
+  @font-face { font-family: "CCSans"; src: url("fonts/sans-sc-400.woff2") format("woff2"); font-weight: 300 800; font-display: swap; }
+  @font-face { font-family: "CCSansLatin"; src: url("fonts/sans-latin-400.woff2") format("woff2"); font-weight: 300 450; font-display: swap; }
+  @font-face { font-family: "CCSansLatin"; src: url("fonts/sans-latin-500.woff2") format("woff2"); font-weight: 451 800; font-display: swap; }
+  @font-face { font-family: "CCMono"; src: url("fonts/mono-latin-400.woff2") format("woff2"); font-weight: 300 550; font-display: swap; }
+  @font-face { font-family: "CCMono"; src: url("fonts/mono-latin-700.woff2") format("woff2"); font-weight: 551 800; font-display: swap; }
+  :root { --gold: #ffd696; --ink: #02030a; --serif: "CCSerif","Noto Serif SC","Source Han Serif SC","Songti SC","STSong","SimSun",serif; --sans: "CCSansLatin","CCSans","Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif; --mono: "CCMono",ui-monospace,Menlo,Consolas,monospace; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ink); color: #fff; overflow: hidden; font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  #stage { position: fixed; inset: 0; display: grid; place-items: center; background: #000; }
+  canvas#c { width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); display: block; background: #000; image-rendering: auto; }
+  body.hide-cursor { cursor: none; }
+
+  /* ---- 开始页 ---- */
+  #start { position: fixed; inset: 0; display: grid; place-items: center; text-align: center; z-index: 5;
+    background: radial-gradient(ellipse at 50% 120%, rgba(255,140,60,.28), transparent 55%), linear-gradient(180deg, rgba(2,3,10,.55), rgba(2,3,10,.82)); transition: opacity .9s ease, visibility .9s; }
+  #start.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+  #start .wrap { padding: 24px; max-width: 760px; }
+  #start .kicker { font: 500 13px var(--mono); letter-spacing: .5em; color: var(--gold); text-transform: uppercase; opacity: .9; margin-bottom: 28px; }
+  #start h1 { margin: 0; font: 600 clamp(40px, 8vw, 96px)/1.1 var(--serif); letter-spacing: .2em; padding-left: .2em; white-space: nowrap; text-shadow: 0 0 40px rgba(255,170,90,.55); }
+  #start .en { margin-top: 14px; font: 400 clamp(12px, 1.6vw, 17px) var(--sans); letter-spacing: .5em; padding-left: .5em; color: rgba(255,235,205,.88); }
+  #start p { margin: 34px auto 0; max-width: 520px; font: 400 15px/1.9 var(--serif); color: rgba(255,255,255,.78); letter-spacing: .08em; }
+  #go { margin-top: 38px; appearance: none; border: 1px solid rgba(255,214,150,.7); background: rgba(255,214,150,.08); color: #fff; font: 500 16px var(--sans); letter-spacing: .4em; padding: 16px 38px 16px 44px; border-radius: 999px; cursor: pointer; transition: all .25s ease; backdrop-filter: blur(6px); }
+  #go:hover:not(:disabled) { background: rgba(255,214,150,.22); box-shadow: 0 0 40px rgba(255,170,90,.45); transform: translateY(-1px); }
+  #go:disabled { opacity: .45; cursor: progress; }
+  #start .hint { margin-top: 26px; font: 400 12px/1.8 var(--mono); letter-spacing: .12em; color: rgba(255,255,255,.5); }
+  #start .hint b { color: rgba(255,214,150,.9); font-weight: 500; }
+
+  /* ---- 控制条 ---- */
+  #ui { position: fixed; left: 0; right: 0; bottom: 0; padding: 40px 28px 20px; z-index: 4; display: flex; align-items: center; gap: 18px;
+    background: linear-gradient(0deg, rgba(0,0,0,.72), rgba(0,0,0,0)); opacity: 0; transition: opacity .35s ease; pointer-events: none; }
+  body.ui-on #ui { opacity: 1; pointer-events: auto; }
+  #ui button { appearance: none; border: 0; background: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; opacity: .9; transition: background .2s, opacity .2s; }
+  #ui button:hover { background: rgba(255,255,255,.14); opacity: 1; }
+  #ui svg { width: 22px; height: 22px; fill: currentColor; }
+  #time { font: 400 13px var(--mono); letter-spacing: .06em; color: rgba(255,255,255,.85); min-width: 104px; }
+  #bar { position: relative; flex: 1; height: 28px; display: flex; align-items: center; cursor: pointer; touch-action: none; }
+  #bar .track { position: relative; width: 100%; height: 4px; background: rgba(255,255,255,.22); border-radius: 2px; overflow: visible; transition: height .15s; }
+  #bar:hover .track { height: 6px; }
+  #bar .fill { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #ff9a4a, #ffe0a8); border-radius: 2px; }
+  #bar .knob { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #fff; box-shadow: 0 0 12px rgba(255,200,130,.9); transform: scale(0); transition: transform .15s; }
+  #bar:hover .knob { transform: scale(1); }
+  #bar .mark { position: absolute; top: -3px; width: 2px; height: 10px; background: rgba(2,3,10,.85); }
+  #tip { position: absolute; bottom: 30px; transform: translateX(-50%); padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,.75); font: 400 12px var(--sans); letter-spacing: .12em; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; }
+  #bar:hover #tip { opacity: 1; }
+
+  /* ---- 结束页 ---- */
+  #end { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; background: rgba(2,3,10,.7); opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 1s; }
+  #end.on { opacity: 1; visibility: visible; }
+  #end button { appearance: none; border: 1px solid rgba(255,214,150,.7); background: rgba(255,214,150,.08); color: #fff; font: 500 15px var(--sans); letter-spacing: .4em; padding: 14px 34px 14px 40px; border-radius: 999px; cursor: pointer; }
+  #end button:hover { background: rgba(255,214,150,.22); box-shadow: 0 0 36px rgba(255,170,90,.4); }
+  #end small { display: block; margin-top: 22px; font: 400 12px var(--mono); letter-spacing: .14em; color: rgba(255,255,255,.5); text-align: center; }
+  #toast { position: fixed; top: 22px; left: 50%; transform: translateX(-50%); z-index: 6; padding: 8px 18px; border-radius: 999px; background: rgba(0,0,0,.6); font: 400 13px var(--sans); letter-spacing: .12em; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #toast.on { opacity: 1; }
+  body.render #start, body.render #ui, body.render #end, body.render #toast { display: none; }
+  body.render #stage { place-items: start; }
+  body.render canvas#c { width: auto; height: auto; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c" width="1920" height="1080"></canvas></div>
+
+<div id="start">
+  <div class="wrap">
+    <div class="kicker">An Original Short Film in Code</div>
+    <h1>协和 · 逐日</h1>
+    <div class="en">CONCORDE · CHASING THE SUN</div>
+    <p>1976 — 2003<br>有一架客机，飞得比太阳还快。<br>这是它的故事——全部画面与声音，均由代码实时生成。</p>
+    <button id="go" disabled>正在准备…</button>
+    <div class="hint">约 3 分 24 秒 · <b>请开启声音</b>，建议佩戴耳机、全屏观看<br>空格 暂停 · ←/→ 快退快进 · [ ] 切换章节 · M 静音 · F 全屏</div>
+  </div>
+</div>
+
+<div id="ui" aria-label="播放控制">
+  <button id="pp" aria-label="播放/暂停" title="播放/暂停 (空格)"><svg id="ico-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg><svg id="ico-play" viewBox="0 0 24 24" style="display:none"><path d="M7 4l13 8-13 8z"/></svg></button>
+  <div id="time">0:00 / 3:24</div>
+  <div id="bar"><div class="track"><div class="fill" id="fill"></div><div class="knob" id="knob"></div></div><div id="tip">0:00</div></div>
+  <button id="mute" aria-label="静音" title="静音 (M)"><svg id="ico-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg><svg id="ico-mute" viewBox="0 0 24 24" style="display:none"><path d="M16.5 12A4.5 4.5 0 0 0 14 8v2.2l2.5 2.5V12zM19 12a7 7 0 0 1-.9 3.4l1.5 1.5A9 9 0 0 0 21 12a9 9 0 0 0-7-8.8v2.1a7 7 0 0 1 5 6.7zM4.3 3L3 4.3 7.7 9H3v6h4l5 4v-6.7l4.2 4.2c-.7.5-1.4.9-2.2 1.1v2.1a9 9 0 0 0 3.6-1.7l2 2 1.3-1.3L4.3 3zM12 5L9.9 7.1 12 9.2V5z"/></svg></button>
+  <button id="fs" aria-label="全屏" title="全屏 (F)"><svg viewBox="0 0 24 24"><path d="M5 5h5v2H7v3H5V5zm9 0h5v5h-2V7h-3V5zM5 14h2v3h3v2H5v-5zm12 0h2v5h-5v-2h3v-3z"/></svg></button>
+</div>
+
+<div id="end"><div><button id="again">再看一遍</button><small>CONCORDE · 1976 — 2003</small></div></div>
+<div id="toast"></div>
+
+<script src="js/util.js"></script>
+<script src="js/plane.js"></script>
+<script src="js/gfx.js"></script>
+<script src="js/film.js"></script>
+<script src="js/world.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/scenes_a.js"></script>
+<script src="js/scenes_b.js"></script>
+<script src="js/scenes_c.js"></script>
+<script src="js/scenes_d.js"></script>
+<script src="js/scenes_e.js"></script>
+<script src="js/audio_engine.js"></script>
+<script src="js/audio_score.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
