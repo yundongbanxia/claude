@@ -2,6 +2,8 @@
 
 > 曾有一架客机，飞得比太阳还快。
 
+[![协和 · 逐日](video/poster.jpg)](video/concorde-chasing-the-sun.mp4)
+
 一部 **3 分 24 秒**的原创短片，讲述协和超音速客机（1976–2003）的故事：从 1962 年的一张图纸，到 1969 年首飞、突破音障、两倍音速巡航，再到向西飞行时“追上落日”，最后在 2003 年落下帷幕。
 
 **整部片子没有任何外部素材**——没有视频、图片、音频采样，也没有 3D 模型文件。
@@ -10,7 +12,7 @@
 | | |
 |---|---|
 | ▶ 在线/本地观看 | 直接用浏览器打开 [`index.html`](index.html)，点击“开始观看”（需要点一下才能出声，这是浏览器的限制） |
-| 🎞 成片 | [`video/concorde-chasing-the-sun.mp4`](video/concorde-chasing-the-sun.mp4)（1080p · 30fps · 含完整音轨，由 `tools/render.mjs` 离线渲染） |
+| 🎞 成片 | [`video/concorde-chasing-the-sun.mp4`](video/concorde-chasing-the-sun.mp4)（1080p · 30fps · AAC 音轨 · 约 31 MB，由 `tools/render.mjs` 离线渲染） |
 | 🎧 建议 | 佩戴耳机、开启声音、全屏观看 |
 
 > 想在线观看：在仓库的 *Settings → Pages* 里把分支设为发布源，访问 `…/concorde-chasing-the-sun/` 即可。
@@ -103,8 +105,9 @@ concorde-chasing-the-sun/
 ```bash
 # 需要：Node 18+、Playwright（含 Chromium）、ffmpeg
 npm i -g playwright   # 或本地安装，然后 npx playwright install chromium
-node tools/render.mjs --out video/concorde-chasing-the-sun.mp4 --fps 30 --width 1920 --workers 4 --crf 20
-# 只渲染音轨 / 只做画面：--audio-only / --video-only
+node tools/render.mjs --out video/concorde-chasing-the-sun.mp4 --fps 30 --width 1920 --workers 4 --crf 26 --preset medium
+# 只渲染音轨 / 只做画面 / 只重新编码：--audio-only / --video-only / --mux-only
+# （胶片颗粒几乎不可压缩，所以编码前会轻度降噪，否则 1080p 会是 400 MB+）
 python3 tools/analyze.py /tmp/concorde-render/audio.wav   # 看每小节响度
 ```
 

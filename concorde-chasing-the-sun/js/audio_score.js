@@ -444,7 +444,7 @@
   const FADE_OUT_AT = 200.4;
 
   // 配乐整体的力度曲线（dB）：序章/蓝图轻柔，起飞与突破渐强，舷窗回落，高潮最强，终章再次沉静
-  const DYN = [[0, -6], [6, -5], [18, -3], [24, -2], [30, 0], [54, 0], [60, -1], [63, 0], [83, -1], [88, -3.5], [100, -3.5], [102, -1.5], [124, -1.5], [126, -3.5], [134, -1], [138, 2.5], [148, 2.5], [150, -1.5], [170, -1.5], [174, -4], [183, -3], [192, -3.5], [196, -2], [204, -2]];
+  const DYN = [[0, -3.5], [6, -2.5], [18, -1.5], [24, -1], [30, 0], [54, 0], [60, -1], [63, 0], [83, -1], [88, -2.5], [100, -2.5], [102, -1.5], [124, -1.5], [126, -3.5], [134, -1], [138, 2.5], [148, 2.5], [150, -1.5], [170, -1.5], [174, -2.5], [183, -2.5], [192, -2.5], [196, -1.5], [204, -1.5]];
   const dynGain = (t) => Math.pow(10, U.keyframes(DYN, t) / 20);
   function applyDyn(E, base, T, nowT) {
     const g = E.musicDyn.gain;
@@ -471,7 +471,8 @@
       this.E = AE.createEngine(this.ctx, { seed: 1969 });
       this.ready = true;
     },
-    time() { return this.ctx ? this.ctx.currentTime - this.base : 0; },
+    // 扣除输出延迟（蓝牙耳机等），让画面与听到的声音对齐
+    time() { return this.ctx ? this.ctx.currentTime - this.base - Math.min(0.25, this.ctx.outputLatency || this.ctx.baseLatency || 0) : 0; },
     freshBuses() {
       const E = this.E, ctx = this.ctx;
       const oldM = E.music, oldS = E.sfx, oldD = E.musicDuck;

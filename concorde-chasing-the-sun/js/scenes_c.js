@@ -47,7 +47,7 @@
       phi = lerp(97, 102, u); el = -9; dist = lerp(222, 205, u); fov = 30; tx = 6;
     } else {
       const u = ease.inOutSine(ramp(t, M2T, 30));
-      phi = lerp(24, 206, u); el = lerp(34, 6, u); dist = lerp(115, 205, u); fov = lerp(30, 34, u);
+      phi = lerp(24, 206, u); el = lerp(34, 6, u); dist = lerp(115, 168, u); fov = lerp(30, 33, u);
     }
     const ph = phi * D2R, e = el * D2R;
     const eye = [pose.pos[0] + tx + dist * Math.cos(e) * Math.cos(ph), pose.pos[1] + dist * Math.sin(e) + ty, pose.pos[2] + dist * Math.cos(e) * Math.sin(ph)];
@@ -224,9 +224,9 @@
   } });
   Film.cue({ kind: 'chapter', t0: 54.6, t1: 58.8, num: 'CHAPTER  III', zh: '突破', en: 'BREAKTHROUGH' });
   Film.cue({ t0: 55.8, t1: 61.8, zh: '1969 年 10 月 1 日，协和首次突破音障。', en: '1 OCTOBER 1969  ·  FIRST SUPERSONIC FLIGHT', y: 904, type: 2.0, scrim: 0.8 });
-  Film.cue({ kind: 'big', t0: 63.2, t1: 66.2, zh: '马赫 1', y: 590, x: 760, size: 150, track: 24, glow: { color: 'rgba(255,255,255,0.7)', blur: 40 }, en: 'THE SOUND BARRIER', enSize: 22, enTrack: 14, enDy: 70, fi: 0.15, fo: 1.2, align: 'center' });
+  Film.cue({ kind: 'big', t0: 63.2, t1: 66.2, zh: '马赫 1', y: 330, x: 760, size: 150, track: 24, glow: { color: 'rgba(255,255,255,0.7)', blur: 40 }, en: 'THE SOUND BARRIER', enSize: 22, enTrack: 14, enDy: 70, fi: 0.15, fo: 1.2, align: 'center' });
   Film.cue({ t0: 67.4, t1: 73.0, zh: '1970 年 11 月 4 日，达到两倍音速。', en: '4 NOVEMBER 1970  ·  MACH 2', y: 904, type: 1.8, scrim: 0.8 });
-  Film.cue({ kind: 'big', t0: 74.6, t1: 77.4, zh: '马赫 2', y: 590, x: 760, size: 150, track: 24, glow: { color: 'rgba(170,220,255,0.8)', blur: 40 }, en: 'TWICE THE SPEED OF SOUND', enSize: 22, enTrack: 12, enDy: 70, fi: 0.15, fo: 1.2 });
+  Film.cue({ kind: 'big', t0: 74.6, t1: 77.4, zh: '马赫 2', y: 330, x: 760, size: 150, track: 24, glow: { color: 'rgba(170,220,255,0.8)', blur: 40 }, en: 'TWICE THE SPEED OF SOUND', enSize: 22, enTrack: 12, enDy: 70, fi: 0.15, fo: 1.2 });
   Film.cue({ t0: 77.8, t1: 83.0, zh: '1976 年 1 月 21 日，伦敦与巴黎同时开航，首批乘客登机。', en: '21 JANUARY 1976  ·  LONDON AND PARIS  ·  THE FIRST PASSENGERS', y: 904, type: 2.4, scrim: 0.8, size: 38, fo: 1.0 });
   Film.typing.push({ t0: 55.8, n: 19, cps: 9.5, kind: 'soft' }, { t0: 67.4, n: 15, cps: 8.5, kind: 'soft' }, { t0: 77.8, n: 28, cps: 11.5, kind: 'soft' });
 

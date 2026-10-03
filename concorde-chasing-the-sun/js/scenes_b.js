@@ -11,6 +11,14 @@
   Film.hud = function (ctx, a, rows, x = 120, y = H - BAR - 150) {
     if (a <= 0.01) return;
     ctx.save();
+    // 垫一层柔和的暗色（椭圆形径向渐变，四周无硬边），保证在明亮天空前也看得清
+    {
+      const cx = x + 150, cy = y + (rows.length * 34) / 2 - 12, hh = rows.length * 34 / 2 + 70;
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(2.6, 1);
+      const bgG = ctx.createRadialGradient(0, 0, 0, 0, 0, hh);
+      bgG.addColorStop(0, `rgba(2,6,20,${0.5 * a})`); bgG.addColorStop(0.6, `rgba(2,6,20,${0.28 * a})`); bgG.addColorStop(1, 'rgba(2,6,20,0)');
+      ctx.fillStyle = bgG; ctx.fillRect(-hh, -hh, hh * 2, hh * 2); ctx.restore();
+    }
     ctx.globalAlpha = a;
     ctx.fillStyle = 'rgba(255,214,150,0.9)'; ctx.fillRect(x - 16, y - 24, 2, rows.length * 34 + 8);
     ctx.restore();

@@ -2,7 +2,8 @@
 //
 // 用法：
 //   node tools/render.mjs [--out video/concorde-chasing-the-sun.mp4] [--fps 30] [--width 1920]
-//                         [--workers 4] [--crf 18] [--tmp /path/to/tmp] [--audio-only] [--video-only]
+//                         [--workers 4] [--crf 23] [--preset slow] [--tmp /path/to/tmp]
+//                         [--audio-only] [--video-only] [--mux-only]
 //                         [--start 0] [--end 204]
 //
 // 依赖：Node 18+、Playwright（含 Chromium）、ffmpeg。
@@ -25,7 +26,9 @@ const OUT = path.resolve(root, opt('out', 'video/concorde-chasing-the-sun.mp4'))
 const FPS = +opt('fps', 30);
 const WIDTH = +opt('width', 1920);
 const WORKERS = +opt('workers', Math.max(1, Math.min(4, os.cpus().length)));
-const CRF = +opt('crf', 18);
+const CRF = +opt('crf', 23);
+const PRESET = opt('preset', 'slow');
+const MUX_ONLY = !!opt('mux-only', false);
 const TMP = path.resolve(opt('tmp', path.join(os.tmpdir(), 'concorde-render')));
 const AUDIO_ONLY = !!opt('audio-only', false), VIDEO_ONLY = !!opt('video-only', false);
 const DURATION = 204;
@@ -97,7 +100,8 @@ function mux(pcm) {
   const args = ['-y', '-loglevel', 'error', '-stats', '-framerate', String(FPS), '-i', path.join(TMP, 'frames', '%06d.jpg')];
   if (START > 0) args.push('-f', 's16le', '-ar', '44100', '-ac', '2', '-ss', String(START), '-i', pcm);
   else args.push('-f', 's16le', '-ar', '44100', '-ac', '2', '-i', pcm);
-  args.push('-t', String(END - START), '-c:v', 'libx264', '-preset', 'slow', '-crf', String(CRF), '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-movflags', '+faststart', '-c:a', 'aac', '-b:a', '192k', '-shortest', OUT);
+  // 胶片颗粒是逐帧随机的、几乎不可压缩，编码前轻度时域降噪，体积能小一个数量级（观看时画面基本无差别）
+  args.push('-t', String(END - START), '-vf', 'hqdn3d=3:2:7:7', '-c:v', 'libx264', '-preset', PRESET, '-crf', String(CRF), '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-movflags', '+faststart', '-c:a', 'aac', '-b:a', '192k', '-shortest', OUT);
   const r = spawnSync('ffmpeg', args, { stdio: 'inherit' });
   if (r.status !== 0) throw new Error('ffmpeg 失败');
   console.log('✔ 已生成', OUT, (fs.statSync(OUT).size / 1048576).toFixed(1) + ' MB');
@@ -105,6 +109,7 @@ function mux(pcm) {
 
 (async () => {
   let pcm = path.join(TMP, 'audio.pcm');
+  if (MUX_ONLY) { mux(pcm); return; }
   if (!VIDEO_ONLY) pcm = await renderAudio();
   if (AUDIO_ONLY) { console.log('✔ 音轨已输出到', path.join(TMP, 'audio.wav')); return; }
   await renderFrames();
